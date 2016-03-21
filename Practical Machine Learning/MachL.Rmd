@@ -1,0 +1,100 @@
+---
+title: "Predicting Movement"
+author: "DocOfi"
+date: "October 16, 2015"
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+setwd("C:/Users/Ed/Desktop/PML/Course Project")
+```
+
+### Synopsis
+The predominant approach to preventing injuries currently is to provide athletes with feedback from a professional trainer during the execution of certain movement. The objective of this work is to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors.  We will be using regression models as our tool to specify correct or incorrect execution and the type of error committed.
+
+### Introduction 
+Six male participants aged between 20-28 years, were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl using a 1.25 dumbbell in ???ve di???erent fashions: exactly according to the speci???ed execution of the exercise (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).  Mounted sensors in the users' glove, armband, lumbar belt and dumbbell collected data  on the Euler angles (roll, pitch and yaw), as well as the raw accelerometer, gyroscope and magnetometer readings.  More information is available from the website [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
+
+### Data and information Source
+The data for this project come from this source: [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
+
+The training data for this project are available here: [https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv) 
+
+The test data are available here:
+[https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
+
+##Data Processing
+
+### Downloading the Data
+```{r, dwnlddata, cache=TRUE}
+training_url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testing_url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+download.file(training_url, destfile = ".training.csv")
+download.file(testing_url, destfile = ".testing.csv")
+dateDownloaded <- date()
+dateDownloaded
+```
+
+### Reading and Processing the data 
+We will be using only the variables that summarized the observed measurements  (min, max, kurtosis, skewness, avg, stddev, amplitude, total) in the data. ```{r, pckgs}
+library(caret)
+library(ggplot2)
+training <- read.csv(".training.csv", header = TRUE, na.strings = c("NA", "#DIV/0!", ""), stringsAsFactors = FALSE)
+testing <- read.csv(".testing.csv", header = TRUE, na.strings = c("NA", "#DIV/0!", ""), stringsAsFactors = FALSE)
+sumVar_index <- grepl("^min|^max|^kurtosis|^skewness|^avg|^var|^stddev|^amplitude|^total", names(training))
+sumVar <- names(training)[sumVar_index]
+my_df <- training[, c(sumVar, "classe")]
+all_na_index <- sapply(my_df, function(x)sum(is.na(x)))
+all_na <- which(all_na_index == 19622) ### identifying variables which contain only missing values
+my_df2 <- my_df[, -all_na]### Removing variables which contain only missing values
+```
+
+###Removing missing values and variables with only 0 values 
+my_df3 <- my_df2[complete.cases(my_df2), ]### Removing rows with missing values
+###Setting the variables to their correct class
+my_df3$total_accel_belt <- as.numeric(my_df3$total_accel_belt)
+my_df3$max_picth_belt <- as.numeric(my_df3$max_picth_belt)
+my_df3$min_pitch_belt <- as.numeric(my_df3$min_pitch_belt)
+my_df3$amplitude_pitch_belt <- as.numeric(my_df3$amplitude_pitch_belt)
+my_df3$total_accel_arm <- as.numeric(my_df3$total_accel_arm)
+my_df3$max_yaw_arm <- as.numeric(my_df3$max_yaw_arm)
+my_df3$min_yaw_arm <- as.numeric(my_df3$min_yaw_arm)
+my_df3$amplitude_yaw_arm <- as.numeric(my_df3$amplitude_yaw_arm)
+my_df3$total_accel_dumbbell <- as.numeric(my_df3$total_accel_dumbbell)
+my_df3$total_accel_forearm <- as.numeric(my_df3$total_accel_forearm)
+my_df3$classe <- as.factor(my_df3$classe)
+###Removing variables that contain only zeroes
+all_zero_index <- sapply(my_df3[,-99], sum)
+all_zero_vars <- which(all_zero_index == 0)
+my_df4 <- my_df3[,-all_zero_vars]
+set.seed(107)
+intrain <- createDataPartition(y = my_df4$classe, p = 0.75, list = FALSE)
+train_set <- my_df4[intrain, ]
+test_set <- my_df4[-intrain, ]
+###Identifying variables that have a high correlation
+cor_mat <- cor(train_set[,-96])
+Cor_Sum <- summary(cor_mat[upper.tri(cor_mat)])
+highcor <- findCorrelation(cor_mat, cutoff = .75)
+highcor_Vars <-  names(train_set)[highcor]
+
+ctrl = trainControl(method="repeatedcv", number=10, repeats=5, selectionFunction = "oneSE")
+rfor_fitall = train(classe ~ ., data=train_set, method="rf", metric = "Kappa", trControl=ctrl, prox = TRUE)
+VarImprrforforall <- varImp(rfor_fitall)
+rpart_fitall = train(classe ~ ., data=train_set, method="rpart", metric = "Kappa", trControl=ctrl)
+VarImprpartall <- varImp(rpart_fitall)
+gbm_fitall = train(classe ~ ., data=train_set, method="gbm", metric = "Kappa", trControl=ctrl)
+VarImpgbmall <- varImp(gbm_fitall)
+resampls = resamples(list(RF = rfor_fitall, GBM = gbm_fitall, RPART = rpart_fitall))
+difValues = diff(resampls)
+summary(difValues)
+
+
+
+
+
+
