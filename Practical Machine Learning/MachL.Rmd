@@ -15,7 +15,7 @@ setwd("C:/Users/Ed/datasciencecoursera/Practical Machine Learning")
 ```
 
 ### Synopsis
-The predominant approach to preventing injuries currently is to provide athletes with  a professional trainer who provides real time feedback while observing the execution of certain movement. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors.  We used regression as our tool to create predictive models on the HAR weight lifting exercises dataset. We   classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity. 
+The predominant approach to preventing injuries currently is to provide athletes with  a professional trainer who provides real time feedback while observing the execution of certain exercises. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors.  We used regression as our tool to create predictive models on the HAR weight lifting exercises dataset. We   classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity. 
 
 ### Introduction 
 Six male participants aged between 20-28 years, were asked to perform one set of 10 repetitions of Unilateral Dumbbell Biceps Curl using a 1.25 dumbbell in different fashions: *exactly according to the specified execution of the exercise* (**Class A**), *throwing the elbows to the front* (**Class B**), *lifting the dumbbell only halfway* (**Class C**), *lowering the dumbbell only halfway* (**Class D**) and *throwing the hips to the front* (**Class E**).  Mounted sensors in the users' glove, armband, lumbar belt and dumbbell collected data  on the Euler angles (roll, pitch and yaw), as well as the raw accelerometer, gyroscope and magnetometer readings.  More information is available from the website [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
@@ -86,16 +86,19 @@ all_zero_vars <- which(all_zero_index == 0)
 
 ### Creating a Train set and a Validation set
 
-We partition the data into a train set and a validation set. A testing set was provided and downloaded earlier.
+We partition the data into a train set and two test sets with 60, 20, and 20 percent composition. A testing set was downloaded earlier as a final validation of the model's accuracy.
 ```{r, partition}
 library(caret)
 set.seed(107)
 intrain <- createDataPartition(y = my_df2$classe, p = 0.6, list = FALSE)
 train_set <- my_df2[intrain, ]
 validation_set <- my_df2[-intrain, ]
+intrain2 <- createDataPartition(y = validation_set$classe, p = 0.75, list = FALSE)
+test_set1 <- validation_set[intrain2, ]
+test_set2 <- validation_set[-intrain2, ]
 ```
 
-The final training dataset contains ```r dim(train_set)[2]``` variables and ```r dim(train_set)[1]``` rows.
+The final training dataset contains ```r dim(train_set)[2]``` variables and ```r dim(train_set)[1]``` rows. The first test set has ```r dim(test_set1)[2]``` variables and ```r dim(test_set1)[1]``` rows. The second test set has ```r dim(test_set2)[2]``` variables and ```r dim(test_set2)[1]``` rows.
 
 ###Model Creation
 We generate a random forest model on the training dataset using the caret and rf package. The variable classe will be our dependent variable. It contains the classification of whether the movement was performed correctly or not and what error was commited as discussed earlier.We included a 5-fold cross validation to improve our model repeated twice.
@@ -106,18 +109,18 @@ rfor_fitall = train(classe ~ ., data=train_set, method="rf", trControl=ctrl)
 ```
 
 ###Assessing Model Accuracy
-We examine the model for its accuracy. 
+We examine the model for its accuracy and we finid it to be very accurate.
 ```{r, mod1out, results= 'asis'}
 library(knitr)
 print(kable(rfor_fitall$results))
 ```
 
-```{r, finalmodel, results='hide', warning=FALSE, message=FALSE}
+```{r, allmodel, results='hide', warning=FALSE, message=FALSE}
 pred_Trainingset <- predict(rfor_fitall, newdata = train_set)
-pred_Vset <- predict(rfor_fitall, newdata = validation_set)
+pred_Vset <- predict(rfor_fitall, newdata = test_set1)
 In_SampleErr <- table(pred_Trainingset,train_set$classe)
-out_of_SampleErr <- table(pred_Vset, validation_set$classe)
-Model_accuracy <- confusionMatrix(pred_Vset, validation_set$classe)
+out_of_SampleErr <- table(pred_Vset, test_set1$classe)
+Model_accuracy <- confusionMatrix(pred_Vset, test_set1$classe)
 ```
 
 The table below shows which predictions on the training dataset and the validation dataset were correct and which were not. The non-diagonal elements are the errors. We can see that our model was able to predict on the training dataset perfectly, which maybe a cause for worry with regard to overfitting.  
@@ -126,7 +129,7 @@ The table below shows which predictions on the training dataset and the validati
 print(kable(In_SampleErr))
 ```
 
-The prediction on the validation dataset was 99% accurate. it misclassified only 59 out of a possible 7,846 entries.
+The prediction on the the first test dataset was 99% accurate. it misclassified only 40 out of a possible 5,886 entries.
 
 ```{r, AccErr2, results='asis'}
 print(kable(out_of_SampleErr))
@@ -138,23 +141,96 @@ The confusion matrix summarize the accuracy, sensitivity, specificity, and other
 print(kable(Model_accuracy$byClass))
 ```
 
-The plot shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27. mtry is the tuning parameter for the package rf in caret.
+The plot below shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27. mtry is the tuning parameter for the package rf in caret.
 
-```{r, Accplot, fig.width=6, fig.height=6}
+```{r, Accplot, fig.width=6, fig.height=3}
 plot(rfor_fitall)
 ```
 
+###Reducing the Number of Features
+We now check which features are important for our model to reduce the number of features in our model to improve the processing time of our model and improve scalability and interpretability.
+```{r, ImpFeatplot, fig.width=6, fig.height=6}
+varImpPlot(rfor_fitall$finalModel, n.var = 27)
+```
+
+We compare the more important features to those which are highly correlated and decide which features to keep.
+
+###Identifying Variables with High Correlation
+```{r, correl, results='asis'}
+cor_mat <- cor(train_set[,-53])
+Cor_Sum <- summary(cor_mat[upper.tri(cor_mat)])
+highcor <- findCorrelation(cor_mat, cutoff = .75)
+highcor_Vars <-  as.data.frame(names(train_set)[highcor])
+highcor_Vars
+```
+
+**Can  we do just as well with 20 features?**
+
+```{r, finalmodel, cache=TRUE, results='hide', warning=FALSE, message=FALSE}
+ctrl <- trainControl(method="repeatedcv", number=5, repeats=2)
+rfor_fit20 = train(classe ~ yaw_belt + pitch_forearm + magnet_dumbbell_z + pitch_belt + magnet_belt_y + gyros_belt_z + magnet_belt_x + gyros_arm_y + gyros_dumbbell_y + yaw_arm + accel_belt_z + accel_dumbbell_z + accel_dumbbell_y + gyros_forearm_y + accel_forearm_x + gyros_belt_x + magnet_arm_z + gyros_dumbbell_z + magnet_belt_z + magnet_dumbbell_y, data=train_set, method="rf", trControl=ctrl)
+```
+
+```{r, model27, results='asis', warning=FALSE, message=FALSE}
+pred_Vset20 <- predict(rfor_fit20, newdata = test_set1)
+Model_accuracy20 <- confusionMatrix(pred_Vset20, test_set1$classe)
+print(kable(Model_accuracy$byClass))
+print(kable(Model_accuracy20$byClass))
+```
+
+**we achieved the same accuracy,sensitivity, and specificity with fewer features.  We probably can reduce it some more**.
+
+**Let's try a model with 8 features**
+```{r, twomodel, cache=TRUE, results='hide', warning=FALSE, message=FALSE}
+ctrl <- trainControl(method="repeatedcv", number=5, repeats=2)
+rfor_fit8 = train(classe ~ yaw_belt + pitch_forearm + magnet_dumbbell_z + pitch_belt + magnet_dumbbell_y + gyros_belt_z + magnet_belt_x + yaw_arm, data=train_set, method="rf", trControl=ctrl)
+```
+
+**The results were still impressive. If you recall the plot above, 2 randomly selected predictors was able to achieve a slightly lower accuracy compared to one with 27**.
+```{r, predmodel8, results='asis', warning=FALSE, message=FALSE}
+pred_testset8 <- predict(rfor_fit8, newdata = test_set1)
+Model_accuracy8 <- confusionMatrix(pred_testset8, test_set1$classe)
+print(kable(Model_accuracy8$byClass))
+```
+
+**Let's try a model with 4 features**.
+```{r, TWOfeaturemodel, cache=TRUE, results='hide', warning=FALSE, message=FALSE}
+rfor_fit4 = train(classe ~ yaw_belt + pitch_forearm + magnet_dumbbell_z + yaw_arm, data=train_set, method="rf", trControl=ctrl)
+```
+
+```{r, TWOfeaturepred, results='asis', warning=FALSE, message=FALSE}
+pred_testset4 <- predict(rfor_fit4, newdata = test_set1)
+Model_accuracy4 <- confusionMatrix(pred_testset4, test_set1$classe)
+print(kable(Model_accuracy4$byClass))
+```
+
+**Specificity and sensitivity dipped a bit but a model with 4 features has better interpretability, scalability and faster processing**.
+
+###Predicting on the second Test Set
+**we now compare the model with all the variables and the one with 4 only on the second test set.**
+```{r, test2pred, results='asis'}
+print(kable(Model_accuracy$byClass))
+print(kable(Model_accuracy4$byClass))
+```
+**Sensitivity suffered a bit but Specificity is still up there.**
+
 ###Conclusions
 
-Predictive models on the HAR weight lifting exercises dataset   classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity.  
+Predictive models on the HAR weight lifting exercises dataset   classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity. It has to be pointed out however, that the errors in movement were performed purposefully.  Different results may be obtained when the errors are committed without intent to commit the error.  
 
 ###Predicting on the Test Set
-We now use our model to predict on the downloaded test set 
+We now use our different models to predict on the downloaded test set.  The results are the same for all models. 
 
 ```{r, testpred, results='asis'}
 testing_proc <- testing[ , which(names(testing) %in% names(train_set))]
 pred_Testset <- predict(rfor_fitall, newdata = testing)
 print(pred_Testset)
+pred_Testset20 <- predict(rfor_fit20, newdata = testing)
+print(pred_Testset20)
+pred_Testset8 <- predict(rfor_fit8, newdata = testing)
+print(pred_Testset8)
+pred_Testset4 <- predict(rfor_fit4, newdata = testing)
+print(pred_Testset8)
 ```
 
 ```{r, sessinfo, eval=TRUE}

@@ -125,6 +125,9 @@ $(document).ready(function () {
 <li><a href="#creating-a-train-set-and-a-validation-set">Creating a Train set and a Validation set</a></li>
 <li><a href="#model-creation">Model Creation</a></li>
 <li><a href="#assessing-model-accuracy">Assessing Model Accuracy</a></li>
+<li><a href="#reducing-the-number-of-features">Reducing the Number of Features</a></li>
+<li><a href="#identifying-variables-with-high-correlation">Identifying Variables with High Correlation</a></li>
+<li><a href="#predicting-on-the-second-test-set">Predicting on the second Test Set</a></li>
 <li><a href="#conclusions">Conclusions</a></li>
 <li><a href="#predicting-on-the-test-set">Predicting on the Test Set</a></li>
 </ul>
@@ -132,7 +135,7 @@ $(document).ready(function () {
 
 <div id="synopsis" class="section level3">
 <h3>Synopsis</h3>
-<p>The predominant approach to preventing injuries currently is to provide athletes with a professional trainer who provides real time feedback while observing the execution of certain movement. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors. We used regression as our tool to create predictive models on the HAR weight lifting exercises dataset. We classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity.</p>
+<p>The predominant approach to preventing injuries currently is to provide athletes with a professional trainer who provides real time feedback while observing the execution of certain exercises. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors. We used regression as our tool to create predictive models on the HAR weight lifting exercises dataset. We classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity.</p>
 </div>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
@@ -199,13 +202,16 @@ all_zero_vars &lt;- which(all_zero_index == 0)</code></pre>
 </div>
 <div id="creating-a-train-set-and-a-validation-set" class="section level3">
 <h3>Creating a Train set and a Validation set</h3>
-<p>We partition the data into a train set and a validation set. A testing set was provided and downloaded earlier.</p>
+<p>We partition the data into a train set and two test sets with 60, 20, and 20 percent composition. A testing set was downloaded earlier as a final validation of the model’s accuracy.</p>
 <pre class="r"><code>library(caret)
 set.seed(107)
 intrain &lt;- createDataPartition(y = my_df2$classe, p = 0.6, list = FALSE)
 train_set &lt;- my_df2[intrain, ]
-validation_set &lt;- my_df2[-intrain, ]</code></pre>
-<p>The final training dataset contains <code>53</code> variables and <code>11776</code> rows.</p>
+validation_set &lt;- my_df2[-intrain, ]
+intrain2 &lt;- createDataPartition(y = validation_set$classe, p = 0.75, list = FALSE)
+test_set1 &lt;- validation_set[intrain2, ]
+test_set2 &lt;- validation_set[-intrain2, ]</code></pre>
+<p>The final training dataset contains <code>53</code> variables and <code>11776</code> rows. The first test set has <code>53</code> variables and <code>5886</code> rows. The second test set has <code>53</code> variables and <code>1960</code> rows.</p>
 </div>
 <div id="model-creation" class="section level3">
 <h3>Model Creation</h3>
@@ -215,7 +221,7 @@ rfor_fitall = train(classe ~ ., data=train_set, method=&quot;rf&quot;, trControl
 </div>
 <div id="assessing-model-accuracy" class="section level3">
 <h3>Assessing Model Accuracy</h3>
-<p>We examine the model for its accuracy.</p>
+<p>We examine the model for its accuracy and we finid it to be very accurate.</p>
 <pre class="r"><code>library(knitr)
 print(kable(rfor_fitall$results))</code></pre>
 <table>
@@ -253,10 +259,10 @@ print(kable(rfor_fitall$results))</code></pre>
 </tbody>
 </table>
 <pre class="r"><code>pred_Trainingset &lt;- predict(rfor_fitall, newdata = train_set)
-pred_Vset &lt;- predict(rfor_fitall, newdata = validation_set)
+pred_Vset &lt;- predict(rfor_fitall, newdata = test_set1)
 In_SampleErr &lt;- table(pred_Trainingset,train_set$classe)
-out_of_SampleErr &lt;- table(pred_Vset, validation_set$classe)
-Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></pre>
+out_of_SampleErr &lt;- table(pred_Vset, test_set1$classe)
+Model_accuracy &lt;- confusionMatrix(pred_Vset, test_set1$classe)</code></pre>
 <p>The table below shows which predictions on the training dataset and the validation dataset were correct and which were not. The non-diagonal elements are the errors. We can see that our model was able to predict on the training dataset perfectly, which maybe a cause for worry with regard to overfitting.</p>
 <pre class="r"><code>print(kable(In_SampleErr))</code></pre>
 <table>
@@ -313,7 +319,7 @@ Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></p
 </tr>
 </tbody>
 </table>
-<p>The prediction on the validation dataset was 99% accurate. it misclassified only 59 out of a possible 7,846 entries.</p>
+<p>The prediction on the the first test dataset was 99% accurate. it misclassified only 40 out of a possible 5,886 entries.</p>
 <pre class="r"><code>print(kable(out_of_SampleErr))</code></pre>
 <table>
 <thead>
@@ -329,8 +335,8 @@ Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></p
 <tbody>
 <tr class="odd">
 <td align="left">A</td>
-<td align="right">2228</td>
-<td align="right">7</td>
+<td align="right">1672</td>
+<td align="right">5</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -338,34 +344,34 @@ Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></p
 <tr class="even">
 <td align="left">B</td>
 <td align="right">1</td>
-<td align="right">1506</td>
-<td align="right">12</td>
-<td align="right">1</td>
+<td align="right">1130</td>
+<td align="right">9</td>
+<td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">C</td>
-<td align="right">2</td>
-<td align="right">5</td>
-<td align="right">1350</td>
-<td align="right">16</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1013</td>
+<td align="right">9</td>
 <td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">D</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">6</td>
-<td align="right">1268</td>
 <td align="right">4</td>
+<td align="right">955</td>
+<td align="right">3</td>
 </tr>
 <tr class="odd">
 <td align="left">E</td>
-<td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
+<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">1435</td>
+<td align="right">1076</td>
 </tr>
 </tbody>
 </table>
@@ -388,75 +394,570 @@ Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></p
 <tbody>
 <tr class="odd">
 <td align="left">Class: A</td>
-<td align="right">0.9982079</td>
-<td align="right">0.9987531</td>
-<td align="right">0.9968680</td>
-<td align="right">0.9992871</td>
-<td align="right">0.2844762</td>
-<td align="right">0.2839664</td>
-<td align="right">0.2848585</td>
-<td align="right">0.9984805</td>
+<td align="right">0.9988053</td>
+<td align="right">0.9988129</td>
+<td align="right">0.9970185</td>
+<td align="right">0.9995248</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2840639</td>
+<td align="right">0.2849134</td>
+<td align="right">0.9988091</td>
 </tr>
 <tr class="even">
 <td align="left">Class: B</td>
-<td align="right">0.9920949</td>
-<td align="right">0.9977876</td>
-<td align="right">0.9907895</td>
-<td align="right">0.9981031</td>
-<td align="right">0.1934744</td>
-<td align="right">0.1919449</td>
-<td align="right">0.1937293</td>
-<td align="right">0.9949412</td>
+<td align="right">0.9920983</td>
+<td align="right">0.9978934</td>
+<td align="right">0.9912281</td>
+<td align="right">0.9981037</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1919810</td>
+<td align="right">0.1936799</td>
+<td align="right">0.9949959</td>
 </tr>
 <tr class="odd">
 <td align="left">Class: C</td>
-<td align="right">0.9868421</td>
-<td align="right">0.9959864</td>
-<td align="right">0.9811047</td>
-<td align="right">0.9972179</td>
-<td align="right">0.1743564</td>
-<td align="right">0.1720622</td>
-<td align="right">0.1753760</td>
-<td align="right">0.9914143</td>
+<td align="right">0.9873294</td>
+<td align="right">0.9965021</td>
+<td align="right">0.9834951</td>
+<td align="right">0.9973229</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1721033</td>
+<td align="right">0.1749915</td>
+<td align="right">0.9919157</td>
 </tr>
 <tr class="even">
 <td align="left">Class: D</td>
-<td align="right">0.9860031</td>
-<td align="right">0.9984756</td>
-<td align="right">0.9921753</td>
-<td align="right">0.9972594</td>
-<td align="right">0.1639052</td>
-<td align="right">0.1616110</td>
-<td align="right">0.1628855</td>
-<td align="right">0.9922394</td>
+<td align="right">0.9896373</td>
+<td align="right">0.9985775</td>
+<td align="right">0.9927235</td>
+<td align="right">0.9979691</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1622494</td>
+<td align="right">0.1634387</td>
+<td align="right">0.9941074</td>
 </tr>
 <tr class="odd">
 <td align="left">Class: E</td>
-<td align="right">0.9951456</td>
-<td align="right">0.9996877</td>
-<td align="right">0.9986082</td>
-<td align="right">0.9989078</td>
-<td align="right">0.1837879</td>
-<td align="right">0.1828957</td>
-<td align="right">0.1831507</td>
-<td align="right">0.9974167</td>
+<td align="right">0.9944547</td>
+<td align="right">0.9997918</td>
+<td align="right">0.9990715</td>
+<td align="right">0.9987523</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1828067</td>
+<td align="right">0.1829766</td>
+<td align="right">0.9971233</td>
 </tr>
 </tbody>
 </table>
-<p>The plot shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27. mtry is the tuning parameter for the package rf in caret.</p>
+<p>The plot below shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27. mtry is the tuning parameter for the package rf in caret.</p>
 <pre class="r"><code>plot(rfor_fitall)</code></pre>
-<p><img src="data:image/png;base64,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B0wIlB6XUKD99cbCwX3vzIf6r+2H+ortL/RA4XgeuFGDwgt0GB0D9br0D09vr/aGrqc//hwI1G5s3fwiybP1BXSN6SBQs6h+5BJsIJA9d9m35bVDof0zY6CAPB/cWBcUtAfa1fI82jHOVQYCmdHzb2+vdij09efx7+8IFJCXk0DtNPRdgapqMAbavXIVFpLnhRsxKGgPdJjugS5uHl0/bAT6Z7OR7PLGeAikAhdboKo5i42+Fj+4jK9dqh+aVz2ay3h6oIA8P9y1QeGvwsw4emQmur159O7ZdlRMJMbi5SdQZQ3hxVQlPE/clUGxXsr4bwTSwctVIM8gkBbcpUEIpK2FAvMQqPQWCszzxl0YhEDqWigsD4GKb6GwPH/cuUEIpK+FgvIQqPwWCsoTwJ0ZhEAKWygkD4FW0EIheRK4oUEIpLGFAvIQaA0tFJAnghsYhEAqWygcD4FW0ULheDK4T4MQSGcLBeMh0DpaKBhPCNcbhEBKWygUD4FW0kKheFK4ziAE0tpCgXgItJYWCsQTw23deQiUAKe2PAQKxFtNeVtnHgIlwOktD4HC8NZT3taVh0AJcIrLQ6AgvBWVt3XkIVACnObyECgEb03lbRFInrem8hAoAG9V5W0RSHkLKS8PgeR56ypvi0DKW0h5eQikvYW0l7e9f0gfBEqA014eAmlvIe3lORiEQAlw6stDIO0tpBpX8+YbhEAJcPrLQyDVuAzKm20QAiXAZVAeAmnG5VDeXIMQKAEuh/IQSDEui/JmGoRACXBZlIdAenF5lDfPIARKgMujPARSi8ukvFkGIVACXCblIZBWXC7lzTEIgRLgcikPgZTisilvhkEIlACXTXkIpBOXT3n3DUKgBLh8ykMglbiMyrtrEAIlwGVUHgJpxOVU3j2DECgBLqfyEEghLqvy7hiEQAlwWZWHQPpweZV32yAESoDLqzwEUofLrLztLYUQKAEur/Jqf24YhEAJcFmVtzW/pg1CoAS4rMpDIH24vMrb3hxHI1ACXGblMYjWhiupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupvJQCkRKSTqCQfGEe5SlEBuWvq4WUlxcIGZS/rhZSXl4gZFD+ulpIeXmBkEH562oh5eUFQgblr6uFlJcXCBmUv64WUl5eICRZUxCIeAWBiFcQiHgFgYhXEIh4BYGIVxCIeAWBiFeCCnR623z9KYf7+PZTjvnxtNm8CpZ42Gy+/JD8kUV/WvvjPrxLt0gVWKDdo/klleOL+dmFmMeX1+pQt7hUiR9//VEd6vrkfuSd4E9b+91QZFvEJKRAx+8/mv9HItlv/qNmSTEP9r/jq2iJNUyOd/iL4E9bm/Ns/pRtEZuQAn20/wQy+d93w5Nk1r2QaIn7h3cx3umPPyV/2tN/WYhsi9jkI1DDk2RKNrgZZXz5IVfe/ln0pz1+/7eNZHmfWbFA+6+yPpoxkBTv+HfZ/tYM0Y6/i5U3yHoF2puLJtESa5AUb/cq3t9KljdIPoPoz9YWYe7t5azSQfTxxe7MUjzG75PRZXzzowsxTZ9uIlWiuYT/+Pd3wR9Z8qcNUF6XoALV/5HEJxKFmLvmv7hcifuNBcn9yJI/bYDyuvBSBvEKAhGvIBDxCgIRryAQ8QoCEa8gEPEKAhGvIBDxCgIRryAQ8QoCEa8gEPEKAhGvIBDxCgIRrxQkkNm6cvz95+mtuVP/8+SBZkPhaMxuw/O/bzbnC7Auj2h4V5/rnqFZtraZWANYH3XGu+ZkkIIEMks269+nN9teh81kc8wVqEHshkePCTTyuV6gh3d7gP1wr45ROdWnIIHM7t36dytQ+2H0wJkC7a5BiwSaekIE0pX9s/3dNbhtvJ1d+Fy3zX++2AdmbfCXf5iGOzRnuY8n85Xn5lYLdRNaafbX5uybw20j77sTpHnw2N62YPjJ5hmqXqCPp9fj93+Yk+HlUY00Q05bV3O8+dx0T6oipQjUboSp2+D/Bj2Q0cHs/zq+1H+YB+aOBQezR/NgfXls9pPubdt+/Vk3p9m+cHpr2uzwOXgx3/vx9GwF6h635OdGqu6T/TOYfPZAzWns6qj+eztOV5c9vhbv5rlYQ0oRqB9Ddx3H3rSE2UNnWqFuHvvAtogZ1ZzeTD9QN6xtzvaP17oJTSt2W37sPVGa7WMv9nCr2OBxM04339J/sn8G+6VuDPTYHHB91Of3Npy+LvvJg/AOihApR6B2DF11V2Ht/9tDe26yDdS0iPXGfLlTqvvDHFZ3WvvBmLemmf7KCtEc0T9uGJ93irGf7J/BfmnXXxA23cvVUdbXAaevq61Yv0HlCNSOoZse6OOp7YY2X/98+hRofy6QuT3HpUB12+7OZwDq082hPT9agbrHXUdlv6v75P5coF7F9vx0edSww/sUqO0Jq+Y/g+ozWDECXY6BDs0I+bU7hc3ugY7f/9luHu96hvrw/nqp74EGX//sgarurDMl0NVRt3ughjF1zagjpQhk70dg74LTjoHMv7ttp8PgFNa0z/5sDHQh0Ontb22rd1dhzdCneZK+b6iq6nwM1H6yf4ampnOBro+6MQZ6HX6n3hQjkBk/m99du5vLmKbz2Tx/Nt/eXoCdXYVdCFSf9roz2MFcVjd9mTWiHfR2j+2D+tmsAGefvLwKqzoNro7qr8I6zudVWNdjTc5a6UgxAnVj6L7jMCKY2ZYfbbv3czgX80CXAvXXYO15sWm/ffOiRj8PZM9B++Zlil03D9R98nIeqOr7kcujBvNALaebB7JfOPTPrzbFCCQWayGZGwS6zH76VVhyHQQ6z8fT+AufZCIIRLyCQMQrCES8gkDEKwhEvIJAxCsIRLyCQMQrCES8gkDEKwhEvIJAxCsIRLzy/6zsYhvE7oFGAAAAAElFTkSuQmCC" /></p>
+<p><img src="data:image/png;base64,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" /></p>
+</div>
+<div id="reducing-the-number-of-features" class="section level3">
+<h3>Reducing the Number of Features</h3>
+<p>We now check which features are important for our model to reduce the number of features in our model to improve the processing time of our model and improve scalability and interpretability.</p>
+<pre class="r"><code>varImpPlot(rfor_fitall$finalModel, n.var = 27)</code></pre>
+<p><img src="data:image/png;base64,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" /></p>
+<p>We compare the more important features to those which are highly correlated and decide which features to keep.</p>
+</div>
+<div id="identifying-variables-with-high-correlation" class="section level3">
+<h3>Identifying Variables with High Correlation</h3>
+<pre class="r"><code>cor_mat &lt;- cor(train_set[,-53])
+Cor_Sum &lt;- summary(cor_mat[upper.tri(cor_mat)])
+highcor &lt;- findCorrelation(cor_mat, cutoff = .75)
+highcor_Vars &lt;-  as.data.frame(names(train_set)[highcor])
+highcor_Vars</code></pre>
+<p>names(train_set)[highcor] 1 accel_belt_z 2 roll_belt 3 accel_belt_y 4 accel_arm_y 5 total_accel_belt 6 accel_dumbbell_z 7 accel_belt_x 8 pitch_belt 9 magnet_dumbbell_x 10 accel_dumbbell_y 11 magnet_dumbbell_y 12 accel_dumbbell_x 13 accel_arm_x 14 accel_arm_z 15 magnet_arm_y 16 magnet_belt_z 17 accel_forearm_y 18 gyros_arm_x</p>
+<p><strong>Can we do just as well with 20 features?</strong></p>
+<pre class="r"><code>ctrl &lt;- trainControl(method=&quot;repeatedcv&quot;, number=5, repeats=2)
+rfor_fit20 = train(classe ~ yaw_belt + pitch_forearm + magnet_dumbbell_z + pitch_belt + magnet_belt_y + gyros_belt_z + magnet_belt_x + gyros_arm_y + gyros_dumbbell_y + yaw_arm + accel_belt_z + accel_dumbbell_z + accel_dumbbell_y + gyros_forearm_y + accel_forearm_x + gyros_belt_x + magnet_arm_z + gyros_dumbbell_z + magnet_belt_z + magnet_dumbbell_y, data=train_set, method=&quot;rf&quot;, trControl=ctrl)</code></pre>
+<pre class="r"><code>pred_Vset20 &lt;- predict(rfor_fit20, newdata = test_set1)
+Model_accuracy20 &lt;- confusionMatrix(pred_Vset20, test_set1$classe)
+print(kable(Model_accuracy$byClass))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sensitivity</th>
+<th align="right">Specificity</th>
+<th align="right">Pos Pred Value</th>
+<th align="right">Neg Pred Value</th>
+<th align="right">Prevalence</th>
+<th align="right">Detection Rate</th>
+<th align="right">Detection Prevalence</th>
+<th align="right">Balanced Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Class: A</td>
+<td align="right">0.9988053</td>
+<td align="right">0.9988129</td>
+<td align="right">0.9970185</td>
+<td align="right">0.9995248</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2840639</td>
+<td align="right">0.2849134</td>
+<td align="right">0.9988091</td>
+</tr>
+<tr class="even">
+<td align="left">Class: B</td>
+<td align="right">0.9920983</td>
+<td align="right">0.9978934</td>
+<td align="right">0.9912281</td>
+<td align="right">0.9981037</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1919810</td>
+<td align="right">0.1936799</td>
+<td align="right">0.9949959</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: C</td>
+<td align="right">0.9873294</td>
+<td align="right">0.9965021</td>
+<td align="right">0.9834951</td>
+<td align="right">0.9973229</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1721033</td>
+<td align="right">0.1749915</td>
+<td align="right">0.9919157</td>
+</tr>
+<tr class="even">
+<td align="left">Class: D</td>
+<td align="right">0.9896373</td>
+<td align="right">0.9985775</td>
+<td align="right">0.9927235</td>
+<td align="right">0.9979691</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1622494</td>
+<td align="right">0.1634387</td>
+<td align="right">0.9941074</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: E</td>
+<td align="right">0.9944547</td>
+<td align="right">0.9997918</td>
+<td align="right">0.9990715</td>
+<td align="right">0.9987523</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1828067</td>
+<td align="right">0.1829766</td>
+<td align="right">0.9971233</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>print(kable(Model_accuracy20$byClass))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sensitivity</th>
+<th align="right">Specificity</th>
+<th align="right">Pos Pred Value</th>
+<th align="right">Neg Pred Value</th>
+<th align="right">Prevalence</th>
+<th align="right">Detection Rate</th>
+<th align="right">Detection Prevalence</th>
+<th align="right">Balanced Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Class: A</td>
+<td align="right">0.9970131</td>
+<td align="right">0.9983381</td>
+<td align="right">0.9958234</td>
+<td align="right">0.9988124</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2835542</td>
+<td align="right">0.2847435</td>
+<td align="right">0.9976756</td>
+</tr>
+<tr class="even">
+<td align="left">Class: B</td>
+<td align="right">0.9903424</td>
+<td align="right">0.9972614</td>
+<td align="right">0.9886065</td>
+<td align="right">0.9976818</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1916412</td>
+<td align="right">0.1938498</td>
+<td align="right">0.9938019</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: C</td>
+<td align="right">0.9853801</td>
+<td align="right">0.9956790</td>
+<td align="right">0.9796512</td>
+<td align="right">0.9969098</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1717635</td>
+<td align="right">0.1753313</td>
+<td align="right">0.9905296</td>
+</tr>
+<tr class="even">
+<td align="left">Class: D</td>
+<td align="right">0.9844560</td>
+<td align="right">0.9985775</td>
+<td align="right">0.9926855</td>
+<td align="right">0.9969568</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1613999</td>
+<td align="right">0.1625892</td>
+<td align="right">0.9915167</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: E</td>
+<td align="right">0.9972274</td>
+<td align="right">0.9997918</td>
+<td align="right">0.9990741</td>
+<td align="right">0.9993758</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1833163</td>
+<td align="right">0.1834862</td>
+<td align="right">0.9985096</td>
+</tr>
+</tbody>
+</table>
+<p><strong>we achieved the same accuracy,sensitivity, and specificity with fewer features. We probably can reduce it some more</strong>.</p>
+<p><strong>Let’s try a model with 8 features</strong></p>
+<pre class="r"><code>ctrl &lt;- trainControl(method=&quot;repeatedcv&quot;, number=5, repeats=2)
+rfor_fit8 = train(classe ~ yaw_belt + pitch_forearm + magnet_dumbbell_z + pitch_belt + magnet_dumbbell_y + gyros_belt_z + magnet_belt_x + yaw_arm, data=train_set, method=&quot;rf&quot;, trControl=ctrl)</code></pre>
+<p><strong>The results were still impressive. If you recall the plot above, 2 randomly selected predictors was able to achieve a slightly lower accuracy compared to one with 27</strong>.</p>
+<pre class="r"><code>pred_testset8 &lt;- predict(rfor_fit8, newdata = test_set1)
+Model_accuracy8 &lt;- confusionMatrix(pred_testset8, test_set1$classe)
+print(kable(Model_accuracy8$byClass))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sensitivity</th>
+<th align="right">Specificity</th>
+<th align="right">Pos Pred Value</th>
+<th align="right">Neg Pred Value</th>
+<th align="right">Prevalence</th>
+<th align="right">Detection Rate</th>
+<th align="right">Detection Prevalence</th>
+<th align="right">Balanced Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Class: A</td>
+<td align="right">0.9946237</td>
+<td align="right">0.9962013</td>
+<td align="right">0.9904819</td>
+<td align="right">0.9978597</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2828746</td>
+<td align="right">0.2855929</td>
+<td align="right">0.9954125</td>
+</tr>
+<tr class="even">
+<td align="left">Class: B</td>
+<td align="right">0.9640035</td>
+<td align="right">0.9962081</td>
+<td align="right">0.9838710</td>
+<td align="right">0.9914046</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1865443</td>
+<td align="right">0.1896024</td>
+<td align="right">0.9801058</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: C</td>
+<td align="right">0.9853801</td>
+<td align="right">0.9919753</td>
+<td align="right">0.9628571</td>
+<td align="right">0.9968983</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1717635</td>
+<td align="right">0.1783894</td>
+<td align="right">0.9886777</td>
+</tr>
+<tr class="even">
+<td align="left">Class: D</td>
+<td align="right">0.9844560</td>
+<td align="right">0.9977647</td>
+<td align="right">0.9885536</td>
+<td align="right">0.9969543</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1613999</td>
+<td align="right">0.1632688</td>
+<td align="right">0.9911103</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: E</td>
+<td align="right">0.9926063</td>
+<td align="right">0.9991674</td>
+<td align="right">0.9962894</td>
+<td align="right">0.9983361</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1824669</td>
+<td align="right">0.1831464</td>
+<td align="right">0.9958868</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Let’s try a model with 4 features</strong>.</p>
+<pre class="r"><code>rfor_fit4 = train(classe ~ yaw_belt + pitch_forearm + magnet_dumbbell_z + yaw_arm, data=train_set, method=&quot;rf&quot;, trControl=ctrl)</code></pre>
+<pre class="r"><code>pred_testset4 &lt;- predict(rfor_fit4, newdata = test_set1)
+Model_accuracy4 &lt;- confusionMatrix(pred_testset4, test_set1$classe)
+print(kable(Model_accuracy4$byClass))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sensitivity</th>
+<th align="right">Specificity</th>
+<th align="right">Pos Pred Value</th>
+<th align="right">Neg Pred Value</th>
+<th align="right">Prevalence</th>
+<th align="right">Detection Rate</th>
+<th align="right">Detection Prevalence</th>
+<th align="right">Balanced Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Class: A</td>
+<td align="right">0.9701314</td>
+<td align="right">0.9883666</td>
+<td align="right">0.9707113</td>
+<td align="right">0.9881320</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2759089</td>
+<td align="right">0.2842338</td>
+<td align="right">0.9792490</td>
+</tr>
+<tr class="even">
+<td align="left">Class: B</td>
+<td align="right">0.8867428</td>
+<td align="right">0.9770381</td>
+<td align="right">0.9025916</td>
+<td align="right">0.9729390</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1715936</td>
+<td align="right">0.1901121</td>
+<td align="right">0.9318904</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: C</td>
+<td align="right">0.8888889</td>
+<td align="right">0.9779835</td>
+<td align="right">0.8949951</td>
+<td align="right">0.9765769</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1549439</td>
+<td align="right">0.1731227</td>
+<td align="right">0.9334362</td>
+</tr>
+<tr class="even">
+<td align="left">Class: D</td>
+<td align="right">0.9295337</td>
+<td align="right">0.9782565</td>
+<td align="right">0.8934263</td>
+<td align="right">0.9860713</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1523955</td>
+<td align="right">0.1705742</td>
+<td align="right">0.9538951</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: E</td>
+<td align="right">0.9584104</td>
+<td align="right">0.9929226</td>
+<td align="right">0.9682540</td>
+<td align="right">0.9906542</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1761808</td>
+<td align="right">0.1819572</td>
+<td align="right">0.9756665</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Specificity and sensitivity dipped a bit but a model with 4 features has better interpretability, scalability and faster processing</strong>.</p>
+</div>
+<div id="predicting-on-the-second-test-set" class="section level3">
+<h3>Predicting on the second Test Set</h3>
+<p><strong>we now compare the model with all the variables and the one with 4 only on the second test set.</strong></p>
+<pre class="r"><code>print(kable(Model_accuracy$byClass))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sensitivity</th>
+<th align="right">Specificity</th>
+<th align="right">Pos Pred Value</th>
+<th align="right">Neg Pred Value</th>
+<th align="right">Prevalence</th>
+<th align="right">Detection Rate</th>
+<th align="right">Detection Prevalence</th>
+<th align="right">Balanced Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Class: A</td>
+<td align="right">0.9988053</td>
+<td align="right">0.9988129</td>
+<td align="right">0.9970185</td>
+<td align="right">0.9995248</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2840639</td>
+<td align="right">0.2849134</td>
+<td align="right">0.9988091</td>
+</tr>
+<tr class="even">
+<td align="left">Class: B</td>
+<td align="right">0.9920983</td>
+<td align="right">0.9978934</td>
+<td align="right">0.9912281</td>
+<td align="right">0.9981037</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1919810</td>
+<td align="right">0.1936799</td>
+<td align="right">0.9949959</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: C</td>
+<td align="right">0.9873294</td>
+<td align="right">0.9965021</td>
+<td align="right">0.9834951</td>
+<td align="right">0.9973229</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1721033</td>
+<td align="right">0.1749915</td>
+<td align="right">0.9919157</td>
+</tr>
+<tr class="even">
+<td align="left">Class: D</td>
+<td align="right">0.9896373</td>
+<td align="right">0.9985775</td>
+<td align="right">0.9927235</td>
+<td align="right">0.9979691</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1622494</td>
+<td align="right">0.1634387</td>
+<td align="right">0.9941074</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: E</td>
+<td align="right">0.9944547</td>
+<td align="right">0.9997918</td>
+<td align="right">0.9990715</td>
+<td align="right">0.9987523</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1828067</td>
+<td align="right">0.1829766</td>
+<td align="right">0.9971233</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>print(kable(Model_accuracy4$byClass))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Sensitivity</th>
+<th align="right">Specificity</th>
+<th align="right">Pos Pred Value</th>
+<th align="right">Neg Pred Value</th>
+<th align="right">Prevalence</th>
+<th align="right">Detection Rate</th>
+<th align="right">Detection Prevalence</th>
+<th align="right">Balanced Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Class: A</td>
+<td align="right">0.9701314</td>
+<td align="right">0.9883666</td>
+<td align="right">0.9707113</td>
+<td align="right">0.9881320</td>
+<td align="right">0.2844037</td>
+<td align="right">0.2759089</td>
+<td align="right">0.2842338</td>
+<td align="right">0.9792490</td>
+</tr>
+<tr class="even">
+<td align="left">Class: B</td>
+<td align="right">0.8867428</td>
+<td align="right">0.9770381</td>
+<td align="right">0.9025916</td>
+<td align="right">0.9729390</td>
+<td align="right">0.1935100</td>
+<td align="right">0.1715936</td>
+<td align="right">0.1901121</td>
+<td align="right">0.9318904</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: C</td>
+<td align="right">0.8888889</td>
+<td align="right">0.9779835</td>
+<td align="right">0.8949951</td>
+<td align="right">0.9765769</td>
+<td align="right">0.1743119</td>
+<td align="right">0.1549439</td>
+<td align="right">0.1731227</td>
+<td align="right">0.9334362</td>
+</tr>
+<tr class="even">
+<td align="left">Class: D</td>
+<td align="right">0.9295337</td>
+<td align="right">0.9782565</td>
+<td align="right">0.8934263</td>
+<td align="right">0.9860713</td>
+<td align="right">0.1639484</td>
+<td align="right">0.1523955</td>
+<td align="right">0.1705742</td>
+<td align="right">0.9538951</td>
+</tr>
+<tr class="odd">
+<td align="left">Class: E</td>
+<td align="right">0.9584104</td>
+<td align="right">0.9929226</td>
+<td align="right">0.9682540</td>
+<td align="right">0.9906542</td>
+<td align="right">0.1838260</td>
+<td align="right">0.1761808</td>
+<td align="right">0.1819572</td>
+<td align="right">0.9756665</td>
+</tr>
+<tr class="even">
+<td align="left">**Sensitivi</td>
+<td align="right">ty suffered a</td>
+<td align="right">bit but Specif</td>
+<td align="right">icity is still up</td>
+<td align="right">there.**</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="conclusions" class="section level3">
 <h3>Conclusions</h3>
-<p>Predictive models on the HAR weight lifting exercises dataset classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity.</p>
+<p>Predictive models on the HAR weight lifting exercises dataset classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity. It has to be pointed out however, that the errors in movement were performed purposefully. Different results may be obtained when the errors are committed without intent to commit the error.</p>
 </div>
 <div id="predicting-on-the-test-set" class="section level3">
 <h3>Predicting on the Test Set</h3>
-<p>We now use our model to predict on the downloaded test set</p>
+<p>We now use our different models to predict on the downloaded test set. The results are the same for all models.</p>
 <pre class="r"><code>testing_proc &lt;- testing[ , which(names(testing) %in% names(train_set))]
 pred_Testset &lt;- predict(rfor_fitall, newdata = testing)
 print(pred_Testset)</code></pre>
+<p>[1] B A B A A E D B A A B C B A E E A B B B Levels: A B C D E</p>
+<pre class="r"><code>pred_Testset20 &lt;- predict(rfor_fit20, newdata = testing)
+print(pred_Testset20)</code></pre>
+<p>[1] B A B A A E D B A A B C B A E E A B B B Levels: A B C D E</p>
+<pre class="r"><code>pred_Testset8 &lt;- predict(rfor_fit8, newdata = testing)
+print(pred_Testset8)</code></pre>
+<p>[1] B A B A A E D B A A B C B A E E A B B B Levels: A B C D E</p>
+<pre class="r"><code>pred_Testset4 &lt;- predict(rfor_fit4, newdata = testing)
+print(pred_Testset8)</code></pre>
 <p>[1] B A B A A E D B A A B C B A E E A B B B Levels: A B C D E</p>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 3.2.4 (2016-03-10)
@@ -474,7 +975,7 @@ print(pred_Testset)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] knitr_1.12.3        randomForest_4.6-12 caret_6.0-64       
+## [1] randomForest_4.6-12 knitr_1.12.3        caret_6.0-64       
 ## [4] ggplot2_2.1.0       lattice_0.20-33    
 ## 
 ## loaded via a namespace (and not attached):
@@ -482,16 +983,16 @@ print(pred_Testset)</code></pre>
 ##  [4] minqa_1.2.4        splines_3.2.4      MatrixModels_0.4-1
 ##  [7] scales_0.3.0       grid_3.2.4         stringr_1.0.0     
 ## [10] e1071_1.6-7        lme4_1.1-11        munsell_0.4.3     
-## [13] highr_0.5.1        compiler_3.2.4     nnet_7.3-12       
-## [16] foreach_1.4.3      iterators_1.0.8    mgcv_1.8-12       
-## [19] Matrix_1.2-4       MASS_7.3-45        plyr_1.8.3        
-## [22] stats4_3.2.4       stringi_1.0-1      pbkrtest_0.4-6    
-## [25] magrittr_1.5       car_2.1-1          reshape2_1.4.1    
-## [28] rmarkdown_0.9.5    evaluate_0.8.3     gtable_0.2.0      
-## [31] colorspace_1.2-6   yaml_2.1.13        tools_3.2.4       
-## [34] parallel_3.2.4     nloptr_1.0.4       nlme_3.1-126      
-## [37] quantreg_5.21      class_7.3-14       formatR_1.3       
-## [40] Rcpp_0.12.3        SparseM_1.7</code></pre>
+## [13] highr_0.5.1        nnet_7.3-12        foreach_1.4.3     
+## [16] iterators_1.0.8    mgcv_1.8-12        Matrix_1.2-4      
+## [19] MASS_7.3-45        plyr_1.8.3         stats4_3.2.4      
+## [22] stringi_1.0-1      pbkrtest_0.4-6     magrittr_1.5      
+## [25] car_2.1-1          reshape2_1.4.1     rmarkdown_0.9.5   
+## [28] evaluate_0.8.3     gtable_0.2.0       colorspace_1.2-6  
+## [31] yaml_2.1.13        tools_3.2.4        parallel_3.2.4    
+## [34] nloptr_1.0.4       nlme_3.1-126       quantreg_5.21     
+## [37] class_7.3-14       formatR_1.3        Rcpp_0.12.3       
+## [40] SparseM_1.7</code></pre>
 </div>
 
 
