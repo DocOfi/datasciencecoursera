@@ -119,7 +119,6 @@ $(document).ready(function () {
 <ul>
 <li><a href="#synopsis">Synopsis</a></li>
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#data-and-information-source">Data and information Source</a></li>
 <li><a href="#downloading-the-data">Downloading the Data</a></li>
 <li><a href="#reading-and-processing-the-data">Reading and Processing the data</a></li>
 <li><a href="#setting-the-variables-to-their-correct-class">Setting the variables to their correct class</a></li>
@@ -133,43 +132,40 @@ $(document).ready(function () {
 
 <div id="synopsis" class="section level3">
 <h3>Synopsis</h3>
-<p>The predominant approach to preventing injuries currently is to provide athletes with a professional trainer who issues feedback while observing the execution of certain movement. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors. We will be using regression models as our tool to specify correct or incorrect execution and the type of error committed.</p>
+<p>The predominant approach to preventing injuries currently is to provide athletes with a professional trainer who provides real time feedback while observing the execution of certain movement. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors. We used regression as our tool to create predictive models on the HAR weight lifting exercises dataset. We classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity.</p>
 </div>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>Six male participants aged between 20-28 years, were asked to perform one set of 10 repetitions of Unilateral Dumbbell Biceps Curl using a 1.25 dumbbell in different fashions: exactly according to the specified execution of the exercise (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Mounted sensors in the users’ glove, armband, lumbar belt and dumbbell collected data on the Euler angles (roll, pitch and yaw), as well as the raw accelerometer, gyroscope and magnetometer readings. More information is available from the website <a href="http://groupware.les.inf.puc-rio.br/har"><a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a></a>.</p>
-</div>
-<div id="data-and-information-source" class="section level3">
-<h3>Data and information Source</h3>
-<p>The data for this project come from this source: <a href="http://groupware.les.inf.puc-rio.br/har"><a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a></a>.</p>
+<p>Six male participants aged between 20-28 years, were asked to perform one set of 10 repetitions of Unilateral Dumbbell Biceps Curl using a 1.25 dumbbell in different fashions: <em>exactly according to the specified execution of the exercise</em> (<strong>Class A</strong>), <em>throwing the elbows to the front</em> (<strong>Class B</strong>), <em>lifting the dumbbell only halfway</em> (<strong>Class C</strong>), <em>lowering the dumbbell only halfway</em> (<strong>Class D</strong>) and <em>throwing the hips to the front</em> (<strong>Class E</strong>). Mounted sensors in the users’ glove, armband, lumbar belt and dumbbell collected data on the Euler angles (roll, pitch and yaw), as well as the raw accelerometer, gyroscope and magnetometer readings. More information is available from the website <a href="http://groupware.les.inf.puc-rio.br/har"><a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a></a>.</p>
 </div>
 <div id="downloading-the-data" class="section level3">
 <h3>Downloading the Data</h3>
-<p>The training dataset conatins 160 variables and 19,622 rows while the testing dataset contains 160 variables and 20 rows.</p>
+<p>The data for this project come from this source: <a href="http://groupware.les.inf.puc-rio.br/har"><a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a></a>.</p>
 <pre class="r"><code>training_url &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;
 testing_url &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;
 download.file(training_url, destfile = &quot;training.csv&quot;)
 download.file(testing_url, destfile = &quot;testing.csv&quot;)
 dateDownloaded &lt;- date()
 dateDownloaded</code></pre>
-<pre><code>## [1] &quot;Tue Mar 22 12:55:39 2016&quot;</code></pre>
+<pre><code>## [1] &quot;Wed Mar 23 10:16:36 2016&quot;</code></pre>
 </div>
 <div id="reading-and-processing-the-data" class="section level3">
 <h3>Reading and Processing the data</h3>
-<p>The features of the data may be classified into measurement, summary, and housekeeping variables. The summary variables (beginning with: min, max, kurtosis, skewness, avg, stddev, and amplitude) apply summary statisitics on the measurement variables (beginning with: roll, pitch, yaw, total, gyros, magnet, and accel). It would have been preferred to use the summary variables for our model as they immensely reduce the number of observations and yet contain the gist of the measurement variables. However, it was impossible to make predictions based on the summary variables on the testing dataset as this contain only missing values. We will be removing the housekeeping variables that contain the row numbers (x), timestamps (raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp), and measurement intervals (new_window and num_window).</p>
 <pre class="r"><code>library(caret)
 library(ggplot2)
-training &lt;- read.csv(&quot;.training.csv&quot;, header = TRUE, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;, &quot;&quot;), stringsAsFactors = FALSE)
-testing &lt;- read.csv(&quot;.testing.csv&quot;, header = TRUE, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;, &quot;&quot;), stringsAsFactors = FALSE)
-sumVar_index &lt;- grepl(&quot;^min|^max|^kurtosis|^skewness|^avg|^var|^stddev|^amplitude&quot;, names(training))
+training &lt;- read.csv(&quot;training.csv&quot;, header = TRUE, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;, &quot;&quot;), stringsAsFactors = FALSE)
+testing &lt;- read.csv(&quot;testing.csv&quot;, header = TRUE, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;, &quot;&quot;), stringsAsFactors = FALSE)
+sumVar_index &lt;- grepl(&quot;^min|^max|^kurtosis|^skewness|^avg|^var|^stddev|^amplitude&quot;, names(training))###identifying summary variables
 sumVar &lt;- names(training)[!sumVar_index]
-my_df &lt;- training[, sumVar]
+my_df &lt;- training[, sumVar]### removing summary variables
 all_na_index &lt;- sapply(my_df, function(x)sum(is.na(x)))
-my_df2 &lt;- my_df[, -c(1:7)]</code></pre>
+my_df2 &lt;- my_df[, -c(1:7)]### removing housekeeping variables</code></pre>
+<p>The features of the data may be classified into <strong>measurement, summary, and housekeeping variables</strong>. The <strong>summary variables</strong> (beginning with: <em>min, max, kurtosis, skewness, avg, stddev, and amplitude</em>) apply summary statisitics on the <strong>measurement variables</strong> (beginning with: <em>roll, pitch, yaw, total, gyros, magnet, and accel</em>). It would have been preferred to use the summary variables for our model as they immensely reduce the number of observations and processing time and yet contain the gist of the measurement variables. However, it was impossible to make predictions based on the summary variables on the testing dataset as this contain only missing values. We will be removing the <strong>housekeeping variables</strong> that contain the row numbers <em>(x)</em>, timestamps (<em>raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp</em>), and measurement intervals (<em>new_window and num_window</em>).</p>
+<p>The downloaded training dataset contains <code>160</code> variables and <code>19622</code> rows while the testing dataset contains <code>160</code> variables and <code>160</code> rows.</p>
 </div>
 <div id="setting-the-variables-to-their-correct-class" class="section level3">
 <h3>Setting the variables to their correct class</h3>
-<p>We need to set the varaibles into the correct class to avoid errors.</p>
+<p>We need to set the variables into the correct class to avoid errors.</p>
 <pre class="r"><code>my_df2$total_accel_belt &lt;- as.numeric(my_df2$total_accel_belt)
 my_df2$accel_belt_x &lt;- as.numeric(my_df2$ accel_belt_x)
 my_df2$accel_belt_y &lt;- as.numeric(my_df2$accel_belt_y)
@@ -209,10 +205,11 @@ set.seed(107)
 intrain &lt;- createDataPartition(y = my_df2$classe, p = 0.6, list = FALSE)
 train_set &lt;- my_df2[intrain, ]
 validation_set &lt;- my_df2[-intrain, ]</code></pre>
+<p>The final training dataset contains <code>53</code> variables and <code>11776</code> rows.</p>
 </div>
 <div id="model-creation" class="section level3">
 <h3>Model Creation</h3>
-<p>We generate a random forest model on the training dataset using the caret and rf package. The variable classe will be our dependent variable. It contains the classification of whether the movement was performed correctly or not and what error was commited as discussed earlier.We include a 2 repeatition of a 5-fold cross validation to improve our model.</p>
+<p>We generate a random forest model on the training dataset using the caret and rf package. The variable classe will be our dependent variable. It contains the classification of whether the movement was performed correctly or not and what error was commited as discussed earlier.We included a 5-fold cross validation to improve our model repeated twice.</p>
 <pre class="r"><code>ctrl &lt;- trainControl(method=&quot;repeatedcv&quot;, number=5, repeats=2)
 rfor_fitall = train(classe ~ ., data=train_set, method=&quot;rf&quot;, trControl=ctrl)</code></pre>
 </div>
@@ -260,7 +257,7 @@ pred_Vset &lt;- predict(rfor_fitall, newdata = validation_set)
 In_SampleErr &lt;- table(pred_Trainingset,train_set$classe)
 out_of_SampleErr &lt;- table(pred_Vset, validation_set$classe)
 Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></pre>
-<p>The table below shows which predictions on the training dataset and the validation dataset were correct and which were not. The non-diagonal elements are the errors. We can see that our model was able to predict on the training dataset perfectly, which maybe a cause for worry with regard to overfitting. The cross validation we did earlier however reduces this worry a little bit.</p>
+<p>The table below shows which predictions on the training dataset and the validation dataset were correct and which were not. The non-diagonal elements are the errors. We can see that our model was able to predict on the training dataset perfectly, which maybe a cause for worry with regard to overfitting.</p>
 <pre class="r"><code>print(kable(In_SampleErr))</code></pre>
 <table>
 <thead>
@@ -446,7 +443,7 @@ Model_accuracy &lt;- confusionMatrix(pred_Vset, validation_set$classe)</code></p
 </tr>
 </tbody>
 </table>
-<p>The plot shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27.</p>
+<p>The plot shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27. mtry is the tuning parameter for the package rf in caret.</p>
 <pre class="r"><code>plot(rfor_fitall)</code></pre>
 <p><img src="data:image/png;base64,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B0wIlB6XUKD99cbCwX3vzIf6r+2H+ortL/RA4XgeuFGDwgt0GB0D9br0D09vr/aGrqc//hwI1G5s3fwiybP1BXSN6SBQs6h+5BJsIJA9d9m35bVDof0zY6CAPB/cWBcUtAfa1fI82jHOVQYCmdHzb2+vdij09efx7+8IFJCXk0DtNPRdgapqMAbavXIVFpLnhRsxKGgPdJjugS5uHl0/bAT6Z7OR7PLGeAikAhdboKo5i42+Fj+4jK9dqh+aVz2ay3h6oIA8P9y1QeGvwsw4emQmur159O7ZdlRMJMbi5SdQZQ3hxVQlPE/clUGxXsr4bwTSwctVIM8gkBbcpUEIpK2FAvMQqPQWCszzxl0YhEDqWigsD4GKb6GwPH/cuUEIpK+FgvIQqPwWCsoTwJ0ZhEAKWygkD4FW0EIheRK4oUEIpLGFAvIQaA0tFJAnghsYhEAqWygcD4FW0ULheDK4T4MQSGcLBeMh0DpaKBhPCNcbhEBKWygUD4FW0kKheFK4ziAE0tpCgXgItJYWCsQTw23deQiUAKe2PAQKxFtNeVtnHgIlwOktD4HC8NZT3taVh0AJcIrLQ6AgvBWVt3XkIVACnObyECgEb03lbRFInrem8hAoAG9V5W0RSHkLKS8PgeR56ypvi0DKW0h5eQikvYW0l7e9f0gfBEqA014eAmlvIe3lORiEQAlw6stDIO0tpBpX8+YbhEAJcPrLQyDVuAzKm20QAiXAZVAeAmnG5VDeXIMQKAEuh/IQSDEui/JmGoRACXBZlIdAenF5lDfPIARKgMujPARSi8ukvFkGIVACXCblIZBWXC7lzTEIgRLgcikPgZTisilvhkEIlACXTXkIpBOXT3n3DUKgBLh8ykMglbiMyrtrEAIlwGVUHgJpxOVU3j2DECgBLqfyEEghLqvy7hiEQAlwWZWHQPpweZV32yAESoDLqzwEUofLrLztLYUQKAEur/Jqf24YhEAJcFmVtzW/pg1CoAS4rMpDIH24vMrb3hxHI1ACXGblMYjWhiupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupPARKgCupvJQCkRKSTqCQfGEe5SlEBuWvq4WUlxcIGZS/rhZSXl4gZFD+ulpIeXmBkEH562oh5eUFQgblr6uFlJcXCBmUv64WUl5eICRZUxCIeAWBiFcQiHgFgYhXEIh4BYGIVxCIeAWBiFeCCnR623z9KYf7+PZTjvnxtNm8CpZ42Gy+/JD8kUV/WvvjPrxLt0gVWKDdo/klleOL+dmFmMeX1+pQt7hUiR9//VEd6vrkfuSd4E9b+91QZFvEJKRAx+8/mv9HItlv/qNmSTEP9r/jq2iJNUyOd/iL4E9bm/Ns/pRtEZuQAn20/wQy+d93w5Nk1r2QaIn7h3cx3umPPyV/2tN/WYhsi9jkI1DDk2RKNrgZZXz5IVfe/ln0pz1+/7eNZHmfWbFA+6+yPpoxkBTv+HfZ/tYM0Y6/i5U3yHoF2puLJtESa5AUb/cq3t9KljdIPoPoz9YWYe7t5azSQfTxxe7MUjzG75PRZXzzowsxTZ9uIlWiuYT/+Pd3wR9Z8qcNUF6XoALV/5HEJxKFmLvmv7hcifuNBcn9yJI/bYDyuvBSBvEKAhGvIBDxCgIRryAQ8QoCEa8gEPEKAhGvIBDxCgIRryAQ8QoCEa8gEPEKAhGvIBDxCgIRrxQkkNm6cvz95+mtuVP/8+SBZkPhaMxuw/O/bzbnC7Auj2h4V5/rnqFZtraZWANYH3XGu+ZkkIIEMks269+nN9teh81kc8wVqEHshkePCTTyuV6gh3d7gP1wr45ROdWnIIHM7t36dytQ+2H0wJkC7a5BiwSaekIE0pX9s/3dNbhtvJ1d+Fy3zX++2AdmbfCXf5iGOzRnuY8n85Xn5lYLdRNaafbX5uybw20j77sTpHnw2N62YPjJ5hmqXqCPp9fj93+Yk+HlUY00Q05bV3O8+dx0T6oipQjUboSp2+D/Bj2Q0cHs/zq+1H+YB+aOBQezR/NgfXls9pPubdt+/Vk3p9m+cHpr2uzwOXgx3/vx9GwF6h635OdGqu6T/TOYfPZAzWns6qj+eztOV5c9vhbv5rlYQ0oRqB9Ddx3H3rSE2UNnWqFuHvvAtogZ1ZzeTD9QN6xtzvaP17oJTSt2W37sPVGa7WMv9nCr2OBxM04339J/sn8G+6VuDPTYHHB91Of3Npy+LvvJg/AOihApR6B2DF11V2Ht/9tDe26yDdS0iPXGfLlTqvvDHFZ3WvvBmLemmf7KCtEc0T9uGJ93irGf7J/BfmnXXxA23cvVUdbXAaevq61Yv0HlCNSOoZse6OOp7YY2X/98+hRofy6QuT3HpUB12+7OZwDq082hPT9agbrHXUdlv6v75P5coF7F9vx0edSww/sUqO0Jq+Y/g+ozWDECXY6BDs0I+bU7hc3ugY7f/9luHu96hvrw/nqp74EGX//sgarurDMl0NVRt3ughjF1zagjpQhk70dg74LTjoHMv7ttp8PgFNa0z/5sDHQh0Ontb22rd1dhzdCneZK+b6iq6nwM1H6yf4ampnOBro+6MQZ6HX6n3hQjkBk/m99du5vLmKbz2Tx/Nt/eXoCdXYVdCFSf9roz2MFcVjd9mTWiHfR2j+2D+tmsAGefvLwKqzoNro7qr8I6zudVWNdjTc5a6UgxAnVj6L7jMCKY2ZYfbbv3czgX80CXAvXXYO15sWm/ffOiRj8PZM9B++Zlil03D9R98nIeqOr7kcujBvNALaebB7JfOPTPrzbFCCQWayGZGwS6zH76VVhyHQQ6z8fT+AufZCIIRLyCQMQrCES8gkDEKwhEvIJAxCsIRLyCQMQrCES8gkDEKwhEvIJAxCsIRLzy/6zsYhvE7oFGAAAAAElFTkSuQmCC" /></p>
 </div>
@@ -477,7 +474,7 @@ print(pred_Testset)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] randomForest_4.6-12 knitr_1.12.3        caret_6.0-64       
+## [1] knitr_1.12.3        randomForest_4.6-12 caret_6.0-64       
 ## [4] ggplot2_2.1.0       lattice_0.20-33    
 ## 
 ## loaded via a namespace (and not attached):
@@ -485,16 +482,16 @@ print(pred_Testset)</code></pre>
 ##  [4] minqa_1.2.4        splines_3.2.4      MatrixModels_0.4-1
 ##  [7] scales_0.3.0       grid_3.2.4         stringr_1.0.0     
 ## [10] e1071_1.6-7        lme4_1.1-11        munsell_0.4.3     
-## [13] highr_0.5.1        nnet_7.3-12        foreach_1.4.3     
-## [16] iterators_1.0.8    mgcv_1.8-12        Matrix_1.2-4      
-## [19] MASS_7.3-45        plyr_1.8.3         stats4_3.2.4      
-## [22] stringi_1.0-1      pbkrtest_0.4-6     magrittr_1.5      
-## [25] car_2.1-1          reshape2_1.4.1     rmarkdown_0.9.5   
-## [28] evaluate_0.8.3     gtable_0.2.0       colorspace_1.2-6  
-## [31] yaml_2.1.13        tools_3.2.4        parallel_3.2.4    
-## [34] nloptr_1.0.4       nlme_3.1-126       quantreg_5.21     
-## [37] class_7.3-14       formatR_1.3        Rcpp_0.12.3       
-## [40] SparseM_1.7</code></pre>
+## [13] highr_0.5.1        compiler_3.2.4     nnet_7.3-12       
+## [16] foreach_1.4.3      iterators_1.0.8    mgcv_1.8-12       
+## [19] Matrix_1.2-4       MASS_7.3-45        plyr_1.8.3        
+## [22] stats4_3.2.4       stringi_1.0-1      pbkrtest_0.4-6    
+## [25] magrittr_1.5       car_2.1-1          reshape2_1.4.1    
+## [28] rmarkdown_0.9.5    evaluate_0.8.3     gtable_0.2.0      
+## [31] colorspace_1.2-6   yaml_2.1.13        tools_3.2.4       
+## [34] parallel_3.2.4     nloptr_1.0.4       nlme_3.1-126      
+## [37] quantreg_5.21      class_7.3-14       formatR_1.3       
+## [40] Rcpp_0.12.3        SparseM_1.7</code></pre>
 </div>
 
 

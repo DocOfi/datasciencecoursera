@@ -11,20 +11,18 @@ output:
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
-setwd("C:/Users/Ed/Desktop/PML/Course Project")
+setwd("C:/Users/Ed/datasciencecoursera/Practical Machine Learning")
 ```
 
 ### Synopsis
-The predominant approach to preventing injuries currently is to provide athletes with  a professional trainer who issues feedback while observing the execution of certain movement. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors.  We will be using regression models as our tool to specify correct or incorrect execution and the type of error committed.
+The predominant approach to preventing injuries currently is to provide athletes with  a professional trainer who provides real time feedback while observing the execution of certain movement. The objective of this work is to determine whether it will be possible to classify errors during the execution of movement based on data obtained from motion traces recorded using on-body sensors.  We used regression as our tool to create predictive models on the HAR weight lifting exercises dataset. We   classified errors and correct execution of lifting barbells with high accuracy, sensitivity and specificity. 
 
 ### Introduction 
-Six male participants aged between 20-28 years, were asked to perform one set of 10 repetitions of Unilateral Dumbbell Biceps Curl using a 1.25 dumbbell in different fashions: exactly according to the specified execution of the exercise (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).  Mounted sensors in the users' glove, armband, lumbar belt and dumbbell collected data  on the Euler angles (roll, pitch and yaw), as well as the raw accelerometer, gyroscope and magnetometer readings.  More information is available from the website [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
-
-### Data and information Source
-The data for this project come from this source: [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
+Six male participants aged between 20-28 years, were asked to perform one set of 10 repetitions of Unilateral Dumbbell Biceps Curl using a 1.25 dumbbell in different fashions: *exactly according to the specified execution of the exercise* (**Class A**), *throwing the elbows to the front* (**Class B**), *lifting the dumbbell only halfway* (**Class C**), *lowering the dumbbell only halfway* (**Class D**) and *throwing the hips to the front* (**Class E**).  Mounted sensors in the users' glove, armband, lumbar belt and dumbbell collected data  on the Euler angles (roll, pitch and yaw), as well as the raw accelerometer, gyroscope and magnetometer readings.  More information is available from the website [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
 
 ### Downloading the Data
-The training dataset conatins 160 variables and 19,622 rows while the testing dataset contains 160 variables and 20 rows.
+The data for this project come from this source: [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har).
+
 ```{r, dwnlddata, cache=TRUE}
 training_url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 testing_url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
@@ -35,22 +33,24 @@ dateDownloaded
 ```
 
 ### Reading and Processing the data 
-The features of the data may be classified into measurement, summary, and housekeeping variables.  The summary variables (beginning with: min, max, kurtosis, skewness, avg, stddev, and amplitude) apply summary statisitics on the measurement variables (beginning with: roll, pitch, yaw, total, gyros, magnet, and accel). It would have been preferred to use the summary variables for our model as they immensely reduce the number of observations and yet contain the gist of the measurement variables. However, it was impossible to make predictions based on the summary variables on the testing dataset as this contain only missing values. We will be removing the housekeeping variables that contain the row numbers (x), timestamps (raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp), and measurement intervals (new_window and num_window).
-
 ```{r, dataproc, results='asis', cache=TRUE}
 library(caret)
 library(ggplot2)
-training <- read.csv(".training.csv", header = TRUE, na.strings = c("NA", "#DIV/0!", ""), stringsAsFactors = FALSE)
-testing <- read.csv(".testing.csv", header = TRUE, na.strings = c("NA", "#DIV/0!", ""), stringsAsFactors = FALSE)
-sumVar_index <- grepl("^min|^max|^kurtosis|^skewness|^avg|^var|^stddev|^amplitude", names(training))
+training <- read.csv("training.csv", header = TRUE, na.strings = c("NA", "#DIV/0!", ""), stringsAsFactors = FALSE)
+testing <- read.csv("testing.csv", header = TRUE, na.strings = c("NA", "#DIV/0!", ""), stringsAsFactors = FALSE)
+sumVar_index <- grepl("^min|^max|^kurtosis|^skewness|^avg|^var|^stddev|^amplitude", names(training))###identifying summary variables
 sumVar <- names(training)[!sumVar_index]
-my_df <- training[, sumVar]
+my_df <- training[, sumVar]### removing summary variables
 all_na_index <- sapply(my_df, function(x)sum(is.na(x)))
-my_df2 <- my_df[, -c(1:7)]
+my_df2 <- my_df[, -c(1:7)]### removing housekeeping variables
 ```
 
+The features of the data may be classified into **measurement, summary, and housekeeping variables**.  The **summary variables** (beginning with: *min, max, kurtosis, skewness, avg, stddev, and amplitude*) apply summary statisitics on the **measurement variables** (beginning with: *roll, pitch, yaw, total, gyros, magnet, and accel*). It would have been preferred to use the summary variables for our model as they immensely reduce the number of observations and processing time and yet contain the gist of the measurement variables. However, it was impossible to make predictions based on the summary variables on the testing dataset as this contain only missing values. We will be removing the **housekeeping variables** that contain the row numbers *(x)*, timestamps (*raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp*), and measurement intervals (*new_window and num_window*).
+
+The downloaded  training dataset contains ```r dim(training)[2]``` variables and ```r dim(training)[1]``` rows while the testing dataset contains ```r dim(testing)[2]``` variables and ```r dim(testing)[2]``` rows.
+
 ###Setting the variables to their correct class
-We need to set the varaibles into the correct class to avoid errors.
+We need to set the variables into the correct class to avoid errors.
 ```{r, rmNAs}
 my_df2$total_accel_belt <- as.numeric(my_df2$total_accel_belt)
 my_df2$accel_belt_x <- as.numeric(my_df2$ accel_belt_x)
@@ -85,6 +85,7 @@ all_zero_vars <- which(all_zero_index == 0)
 ```
 
 ### Creating a Train set and a Validation set
+
 We partition the data into a train set and a validation set. A testing set was provided and downloaded earlier.
 ```{r, partition}
 library(caret)
@@ -94,8 +95,10 @@ train_set <- my_df2[intrain, ]
 validation_set <- my_df2[-intrain, ]
 ```
 
+The final training dataset contains ```r dim(train_set)[2]``` variables and ```r dim(train_set)[1]``` rows.
+
 ###Model Creation
-We generate a random forest model on the training dataset using the caret and rf package. The variable classe will be our dependent variable. It contains the classification of whether the movement was performed correctly or not and what error was commited as discussed earlier.We include a 2 repeatition of a 5-fold cross validation to improve our model.
+We generate a random forest model on the training dataset using the caret and rf package. The variable classe will be our dependent variable. It contains the classification of whether the movement was performed correctly or not and what error was commited as discussed earlier.We included a 5-fold cross validation to improve our model repeated twice.
 
 ```{r, initialmodel, cache=TRUE, results='hide', warning=FALSE, message=FALSE}
 ctrl <- trainControl(method="repeatedcv", number=5, repeats=2)
@@ -117,7 +120,7 @@ out_of_SampleErr <- table(pred_Vset, validation_set$classe)
 Model_accuracy <- confusionMatrix(pred_Vset, validation_set$classe)
 ```
 
-The table below shows which predictions on the training dataset and the validation dataset were correct and which were not. The non-diagonal elements are the errors. We can see that our model was able to predict on the training dataset perfectly, which maybe a cause for worry with regard to overfitting.  The cross validation we did earlier however reduces this worry a little bit. 
+The table below shows which predictions on the training dataset and the validation dataset were correct and which were not. The non-diagonal elements are the errors. We can see that our model was able to predict on the training dataset perfectly, which maybe a cause for worry with regard to overfitting.  
 
 ```{r, AccErr1, results='asis'}
 print(kable(In_SampleErr))
@@ -135,7 +138,7 @@ The confusion matrix summarize the accuracy, sensitivity, specificity, and other
 print(kable(Model_accuracy$byClass))
 ```
 
-The plot shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27.
+The plot shows the relationship between the number of randomly selected predictors and the accuracy. Accuracy is highest when mtry, the number of variables available for splitting at each tree node is 27. mtry is the tuning parameter for the package rf in caret.
 
 ```{r, Accplot, fig.width=6, fig.height=6}
 plot(rfor_fitall)
