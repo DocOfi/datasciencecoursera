@@ -18,6 +18,10 @@ The ultimate goal of the student in the course project is to come up with a shin
 
 Natural language processing (NLP) is a field of computer science, artificial intelligence, and computational linguistics concerned with the interactions between computers and human (natural) languages. As such, NLP is related to the area of human-computer interaction. Many challenges in NLP involve: natural language understanding, enabling computers to derive meaning from human or natural language input; and others involve natural language generation. - Wikipedia
 
+[Predicting The Next Word Pitch presentation](http://rpubs.com/DocOfi/194236)
+
+[Predicting the Next Word App](https://docofi.shinyapps.io/capstone/)
+
 
 <h3 align="left"><p style="color:midnightblue">Content</p></h3>
 
@@ -45,7 +49,7 @@ The finaltxt_files is a folder containing the images displayed in the finaltxt m
 
 The index1.png is an image file in .png format which contains the image displayed in the README markdown document.
 
-The capstone.Rpres file is an RStudios Presenter file which creates the pitch presentation. The pitch presentation can be viewed by clicking on this link [Predicting The Next Word Pitch presentation](http://www.rpubs.com/DocOfi/169246)
+The capstone.Rpres file is an RStudios Presenter file which creates the pitch presentation. The pitch presentation can be viewed by clicking on this link [Predicting The Next Word Pitch presentation](http://rpubs.com/DocOfi/194236)
 
 The capstone.md file is the markdown version of the output of the pitch presentation.
 
@@ -53,7 +57,6 @@ The logopohjd.png and the fourfivg.png files are also image files in .png format
 
 The .R files contain the codes to create the shiny app presentation. You can view the app by clicking on this link [Predicting the Next Word](https://docofi.shinyapps.io/capstone/)
 
-To download the content of this repository as a .zip file, click on the Download ZIP button. If you have a GitHub account, you can fork the content so you'll have a copy on your GitHub account.  
 
 
 

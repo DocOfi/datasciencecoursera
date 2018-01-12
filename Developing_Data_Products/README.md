@@ -51,5 +51,4 @@ The ui.R and server.R are the files that created the shiny presentationhtml vers
 
 The .png files are images that are displayed in the README.md document.
 
-To download the content of this repository as a .zip file, click on the Download ZIP button. If you have a GitHub account, you can fork the content so you'll have a copy on your GitHub account.  
 

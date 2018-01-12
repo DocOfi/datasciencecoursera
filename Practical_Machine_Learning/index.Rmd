@@ -1,4 +1,4 @@
-n/ ---
+---
 title: "Predicting Errors in Execution of Physical Exercises"
 author: "DocOfi"
 date: "October 16, 2015"
@@ -11,7 +11,7 @@ output:
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
-setwd("C:/Users/Ed/datasciencecoursera/PracticalMachineLearning")
+options(knitr.table.format = 'html') 
 ```
 
 ### Synopsis

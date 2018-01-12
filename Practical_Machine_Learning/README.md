@@ -49,5 +49,4 @@ The index Rmarkdown document contains my project for the Practical Machine Learn
 
 The index.md and index.html files are versions of the index.Rmd file in markdown and html format. If you want to view my project you can click on the index.md file to display it on the screen. 
 
-To download the content of this repository as a .zip file, click on the Download ZIP button. If you have a GitHub account, you can fork the content so you'll have a copy on your GitHub account.  
 
