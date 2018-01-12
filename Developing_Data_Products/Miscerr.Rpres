@@ -1,0 +1,62 @@
+Comparing Algorithms - Guide to the App
+========================================================
+author: DocOfi
+date: April 11, 2016
+transition: rotate
+
+Comparing Algorithms - Guide to the App 
+This presentation together with an [App](https://docofi.shinyapps.io/ShinyApp10/) 
+will give you a brief look at the performance of different algorithms found in the caret package by comparing the datapoints the model failed to correctly classify.  The full article can be found at [Comparing Algorithms](http://www.rpubs.com/DocOfi/170079).
+</small>
+
+
+Summary
+========================================================
+incremental: true
+type: prompt
+
+- We compared the performance of different classifiers on the famous (Fisher's or Anderson's) iris data set which gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris.
+- We focussed on the data points misclassified by the models
+- Identifying the datapoint  visually is difficult. The App provides an invaluable assistance to identifying the miscalssified data points.
+
+A table tells only half of the story
+========================================================
+incremental: true
+type: section
+
+```{r, echo=FALSE}
+errors <- read.csv("ose.csv")
+print(errors)
+```
+
+- The models perform quite similarly and their accuracy are not far from each other...
+- What makes them different from each other is not apparent
+
+========================================================
+incremental: true
+type: prompt
+
+```{r, echo=FALSE}
+library(ggplot2)
+data("iris")
+testing <- iris[c(14, 15, 17, 39, 41, 42, 2, 5, 9, 13, 38, 46, 50, 8, 11, 20, 32, 40, 27, 30, 31, 47, 6, 25, 45, 94, 65, 82, 60, 70, 54, 89, 95, 97, 75, 66, 76, 88, 52,56,67,69,79,86,107,55,59,87,77,127,53,122,78,102,142,143,146,148,116,140,149,113,117,138,129,133,135,137,121,105,103,101,110,106,123),  ]
+testing2 <- testing
+testing2$Row.Num <- rownames(testing2)
+testing2$Misclass.Err <- ifelse(testing2$Row.Num == 53 | testing2$Row.Num == 77 | testing2$Row.Num == 78 | testing2$Row.Num == 107, 0,1)
+ggplot(testing2) + geom_point(aes(Petal.Length, Sepal.Length, colour = Misclass.Err, shape = Species), size = 2.5) + labs(x="Petal.Length", y = "Sepal.Length")
+```
+
+***
+
+- knowing how many data points were misclassified is good, but...
+- Identifying the datapoints and the values they represent allow us to compare the models strategy for classification against each other 
+- Using the App makes this very easy
+
+Links
+========================================================
+type: prompt
+
+- The App may be accessed at [App](https://docofi.shinyapps.io/ShinyApp10/)
+- The full article may be found at [Comparing Algorithms](http://www.rpubs.com/DocOfi/170079)
+- The codes for the App may be found at [https://github.com/DocOfi/DevelopingDataProducts.git](https://github.com/DocOfi/DevelopingDataProducts.git)
+- This presentation may be found at [Comparing Algorithms - Guide to the App](http://rpubs.com/DocOfi/1700780)

@@ -1,0 +1,193 @@
+---
+title: An experiment to determine the effects of different types and concentrations
+  of ascorbic acid on the growth of odontoblast cells in guinea pigs
+author: "DocOfi"
+date: "November 10, 2015"
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+  word_document: default
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+####Synopsis
+There are no significant differences in the mean odontoblast cell length between the group of guinea pigs receiving orange juice and vitamin c in general and when the dose is 2 mg/day.  There are significant differences in the means between the groups when the dose is 0.5 (p = 0.01) (t.test = 3.17, 95% CI 1.72 to 8.78) and 1.0 mg/day (p = 0) (t.test = 4.03, 95% CI 2.8 to 9.06).
+
+##### Overview of the experiment
+
+For this analysis we will be using the dataset ToothGrowth, which is included with every standard installation of R.  It contains a subset of the results from experiments conducted in the 1940's by EW Crampton of the Department of Nutrition, Macdonald College, McGill University.
+
+28 (+/-3) days, sex- matched, 250-400 gm weight guinea pigs were enrolled in this experiment and fed a diet supplemented with varying doses (0.25, 0.50, 1.0 mg/day) of ascorbic acid in the form of orange juice or aquaeous solutions of vitamin c. At the conclusion of a 42 day period, the animals were sacrificed and measurements of the length of the incisor's odontoblasts (tooth-forming cells) were made under 440 magnification by means of an ocular micrometer and the readings are subsequently converted to microns.
+
+####Exploratory Data Analysis
+
+```{r, summtth, echo=FALSE}
+ToothGrowth$supp <- as.factor(ToothGrowth$supp)
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+str(ToothGrowth)
+library(dplyr)
+sum_supp_only <- ToothGrowth %>% group_by(supp) %>% summarize(n=n(), min=min(len), max = max(len), median = median(len), mean=mean(len), var=var(len), sd=sd(len))
+sum_supdos <- ToothGrowth %>% group_by(dose, supp) %>% summarize(n=n(), min=min(len), max = max(len), median = median(len), mean=mean(len), var=var(len), sd=sd(len))
+print(sum_supp_only)
+print(sum_supdos)
+```
+
+The dataset contained 60 rows of observations from 60 Guinea pigs. The animals were divided into 2 groups of 30 based on the type of supplement they received (orange juice = oj and vitamin c = vc) and further subdivided into three groups (10 each) according to doses received (0.5, 1.0, 2.0 mg/day). There are (`r sum(is.na(ToothGrowth))`) missing values in our data.
+
+##### Initial Inference about the data
+
+```{r, loading_tthdata,fig.width=6, fig.height=4,echo=FALSE}
+z <- c(1, 3.5, 6)
+x <- c("0.5", "1", "2")
+par(mfrow = c(1, 2), bg = "grey", cex.axis = .9, cex.lab = .9)
+par(mar=c(4.1,4.1,1.1,2.1))
+par(oma = c( 0, 0, 3, 0 ))
+boxplot(len ~ supp*dose, data = ToothGrowth, xlab = "Dose", col = c("orange", "yellow", "orange", "yellow", "orange", "yellow"), boxwex = .8, ylab = "Length (microns)", xaxt="n", cex = .8)
+axis(side = 1, at=z,labels=x, col.axis="black", las=0, cex.axis=1)
+boxplot(len ~ supp, data = ToothGrowth, xlab = "Supplement", col = c("orange", "yellow"), boxwex = .6, cex = .8)
+mtext("Comparing Odontoblast Cell Lengths\n by Dose and Type of Supplement", outer = TRUE, col = "Black", cex.axis = .6)
+```
+
+- The  mean length of odontoblast cells increased as the dose increased, regardless of the type of supplement. However, the difference  seemed to have equalized in the highest dose (2 mg/day), suggesting a possible saturation point where an increase in concentration will not have the same increase in odontoblast length.
+
+- The mean length of odontoblast cells from animals that were given orange juice were generally higher compared to those who received vitamin c, suggesting, greater bio-availablity of ascorbic acid from orange juice compared to synthetically produced vitamin c.
+
+#### Testing our inference using confidence intervals and/or hypothesis tests 
+
+We will now verify whether our initial inference about the data is true by using the t test to compare the means between the two types of supplement and between the different dose of each supplement. We chose to apply the t test on these means due to the significant overlap in the inter-quartile range of their values. Less overlap was obseved between the individual doses within the respective type of supplements.
+
+Our null hypothesis (H0) 
+- There are no significant differences in the mean length of odontoblast cells in guinea pigs given orange juice and vitamin c in general and varying doses of: 0.05, 1.0,and 2.0 mg/day orange juice and vitamin c in particular.
+Alternative hypothesis (HA)
+- There are significant differences in the mean length of odontoblast cells in guinea pigs given orange juice and vitamin c in general and varying doses of: 0.05, 1.0,and 2.0 mg/day orange juice and vitamin c in particular.
+
+#####Assumptions
+
+- We assume that the random sampling was perfomed during the selection of animals and that the animals were taken from identical populations but are independent of each other.  
+- We assume that the diet fed to the animals and food consumption in the different groups are similar.
+- We assume that the orange juice and vitamin c supplement contain the same amount of ascorbic acid.
+- We assume that our data follows approximates a normal distribution.
+- We expected near equal variance between the different groups as they were obtained from the same population and sex-matched (as growth and size are different for the female and male guinea pig) however, the computed variance reveal otherwise.
+- Based on the above, we assume that the appropriate test to compare the means between the different groups is the students t-test, with arguments: var.equal=FALSE, paired=FALSE, and conf.level=0.95.
+
+##### Effect of type of Supplement
+
+Comparing mean odontoblast cell lengths between the group receiving orange juice and vitamin c regardless of dose.
+
+```{r, testsupple, echo=FALSE}
+testsupp <- t.test(len ~ supp, data= ToothGrowth, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+ojvsvc <- data.frame( "t"  = round(testsupp$statistic, 2), "deg f" = round(testsupp$parameter, 2), "p-val"  = round(testsupp$p.value, 2), "low CI" = round(testsupp$conf.int[1], 2), "upp CI" = round(testsupp$conf.int[2], 2), "OJ mean" = round(testsupp$estimate[1], 2), "Vit C mean" = round(testsupp$estimate[2], 2), row.names = "OJ vs Vit C ")
+print(ojvsvc)
+```
+
+##### Effect of Dosage
+
+Comparing mean odontoblast cell lengths between the group receiving orange juice and vitamin c at different doses.
+
+```{r, testdose, echo=FALSE}
+conc_half <- ToothGrowth[ToothGrowth$dose ==0.5, ]
+ttest_half <- t.test(len ~ supp, data= conc_half, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+halfmgconc <- data.frame( "t"  = round(ttest_half$statistic, 2), "deg f" = round(ttest_half$parameter, 2), "p-val"  = round(ttest_half$p.value, 2), "low CI" = round(ttest_half$conf.int[1], 2), "upp CI" = round(ttest_half$conf.int[2], 2), "OJ mean" = round(ttest_half$estimate[1], 2), "Vit C mean" = round(ttest_half$estimate[2], 2), row.names = "OJ vs Vit C 0.5")
+print(halfmgconc)
+conc1 <- ToothGrowth[ToothGrowth$dose == 1, ]
+ttest_1 <- t.test(len ~ supp, data= conc1, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+onemgconc <- data.frame( "t"  = round(ttest_1$statistic, 2), "deg f" = round(ttest_1$parameter, 2), "p-val"  = round(ttest_1$p.value, 2), "low CI" = round(ttest_1$conf.int[1], 2), "upp CI" = round(ttest_1$conf.int[2], 2), "OJ mean" = round(ttest_1$estimate[1], 2), "Vit C mean" = round(ttest_1$estimate[2], 2), row.names = "OJ vs Vit C 1.0")
+print(onemgconc)
+conc2 <- ToothGrowth[ToothGrowth$dose == 2, ]
+ttest_2 <- t.test(len ~ supp, data= conc2, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+twomgconc <- data.frame( "t"  = round(ttest_2$statistic, 2), "deg f" = round(ttest_2$parameter, 2), "p-val"  = round(ttest_2$p.value, 2), "low CI" = round(ttest_2$conf.int[1], 2), "upp CI" = round(ttest_2$conf.int[2], 2), "OJ mean" = round(ttest_2$estimate[1], 2), "Vit C mean" = round(ttest_2$estimate[2], 2), row.names = "OJ vs Vit C 2.0")
+print(twomgconc)
+```
+
+#### Conclusions
+
+Confidence intervals are set to 95% usually to give a low 5% probability that the result occured by chance. Confidence intervals that include the value of 0 indicated that there is no difference in the mean values, therefore prevents us from rejectinng the null hypothesis.  
+
+Based on these criteria and the results of our analysis, we accept the null hypothesis when comparing the mean odontablast cell lengths between the group receiving  orange juice and vitamin c regardless of dose (p = 0.06) (t.test = 1.92, 95% CI -0.17 to 7.57) and when the dose is 2mg/day (p = 0.96) (t.test = -0.05, 95% CI -3.8 to 3.64).  We reject the null hypothesis when the comparing two groups at doses of 0.5 (p = 0.01)(t.test = 3.17, 95% CI 1.72 to 8.78) and 1.0 mg/day (p = 0)(t.test = 4.03, 95% CI 2.8 to 9.06).
+
+In other words, there is no significant difference in the effect of vitamin c and orange juice on odontoblast cell length of guinea pigs in general. There is significant difference in the mean odontoblast length between the two groups when the dose is 0.5 and 1.0 mg/day but not when the dose is 2.0 mg/day.
+
+Assuming that the same amount of ascorbic acid is present in both types of supplement, it is reasonable to expect that there won't be any difference in the effects of the two groups.  The observed greater effect of orange juice in lower doses suggest greater bio-availability of ascorbic acid in orange juice and the observed lack of diffference in the 2.0 mg/day dose suggest a saturation in the effect of ascorbic acid on odontoblast cell length.
+
+#### Appendix
+
+##### References
+
+1. Crampton E.W., "THE GROWTH OF THE ODONTOBLASTS OF THE
+INCISOR TOOTH AS A CRITERION OF THE VITAMIN C INTAKE OF THE GUINEA PIG", J. Nutr., 1947, 491-504.
+2. Bliss C.I., "The Statistics of Bioassay". Academic Press Inc., 1952, 499-501.
+
+##### Codes
+
+Code for global setting
+```{r code1, eval=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+setwd("C:/Users/Ed/Desktop/UCI HAR Dataset")
+```
+code for exploratory analysis section
+```{r, code2, eval=FALSE}
+ToothGrowth$supp <- as.factor(ToothGrowth$supp)
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+str(ToothGrowth)
+library(dplyr)
+sum_supp_only <- ToothGrowth %>% group_by(supp) %>% summarize(n=n(), min=min(len), max = max(len), median = median(len), mean=mean(len), var=var(len), sd=sd(len))
+sum_supdos <- ToothGrowth %>% group_by(dose, supp) %>% summarize(n=n(), min=min(len), max = max(len), median = median(len), mean=mean(len), var=var(len), sd=sd(len))
+print(sum_supp_only)
+print(sum_supdos)
+```
+code for Initial Inference about the data section
+```{r, code3, eval=FALSE}
+z <- c(1, 3.5, 6)
+x <- c("0.5", "1", "2")
+par(mfrow = c(1, 2), bg = "grey", cex.axis = .9, cex.lab = .9)
+par(mar=c(4.1,4.1,1.1,2.1))
+par(oma = c( 0, 0, 3, 0 ))
+boxplot(len ~ supp*dose, data = ToothGrowth, xlab = "Dose", col = c("orange", "yellow", "orange", "yellow", "orange", "yellow"), boxwex = .8, ylab = "Length (microns)", xaxt="n", cex = .8)
+axis(side = 1, at=z,labels=x, col.axis="black", las=0, cex.axis=1)
+boxplot(len ~ supp, data = ToothGrowth, xlab = "Supplement", col = c("orange", "yellow"), boxwex = .6, cex = .8)
+mtext("Comparing Odontoblast Cell Lengths\n by Dose and Type of Supplement", outer = TRUE, col = "Black", cex.axis = .6)
+```
+code for Effect of type of Supplement section
+```{r, code4, eval=FALSE}
+testsupp <- t.test(len ~ supp, data= ToothGrowth, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+ojvsvc <- data.frame( "t"  = round(testsupp$statistic, 2), "deg f" = round(testsupp$parameter, 2), "p-val"  = round(testsupp$p.value, 2), "low CI" = round(testsupp$conf.int[1], 2), "upp CI" = round(testsupp$conf.int[2], 2), "OJ mean" = round(testsupp$estimate[1], 2), "Vit C mean" = round(testsupp$estimate[2], 2), row.names = "OJ vs Vit C ")
+print(ojvsvc)
+```
+code for Effect of Dosage section
+```{r, code5, eval=FALSE}
+conc_half <- ToothGrowth[ToothGrowth$dose ==0.5, ]
+ttest_half <- t.test(len ~ supp, data= conc_half, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+halfmgconc <- data.frame( "t"  = round(ttest_half$statistic, 2), "deg f" = round(ttest_half$parameter, 2), "p-val"  = round(ttest_half$p.value, 2), "low CI" = round(ttest_half$conf.int[1], 2), "upp CI" = round(ttest_half$conf.int[2], 2), "OJ mean" = round(ttest_half$estimate[1], 2), "Vit C mean" = round(ttest_half$estimate[2], 2), row.names = "OJ vs Vit C 0.5")
+print(halfmgconc)
+conc1 <- ToothGrowth[ToothGrowth$dose == 1, ]
+ttest_1 <- t.test(len ~ supp, data= conc1, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+onemgconc <- data.frame( "t"  = round(ttest_1$statistic, 2), "deg f" = round(ttest_1$parameter, 2), "p-val"  = round(ttest_1$p.value, 2), "low CI" = round(ttest_1$conf.int[1], 2), "upp CI" = round(ttest_1$conf.int[2], 2), "OJ mean" = round(ttest_1$estimate[1], 2), "Vit C mean" = round(ttest_1$estimate[2], 2), row.names = "OJ vs Vit C 1.0")
+print(onemgconc)
+conc2 <- ToothGrowth[ToothGrowth$dose == 2, ]
+ttest_2 <- t.test(len ~ supp, data= conc2, var.equal = FALSE, paired=FALSE ,conf.level = .95)
+twomgconc <- data.frame( "t"  = round(ttest_2$statistic, 2), "deg f" = round(ttest_2$parameter, 2), "p-val"  = round(ttest_2$p.value, 2), "low CI" = round(ttest_2$conf.int[1], 2), "upp CI" = round(ttest_2$conf.int[2], 2), "OJ mean" = round(ttest_2$estimate[1], 2), "Vit C mean" = round(ttest_2$estimate[2], 2), row.names = "OJ vs Vit C 2.0")
+print(twomgconc)
+```
+##### Brief of summary of the original experiment
+
+The principal findings of the experiment were:
+
+1. 28 days on intakes of 0.25mg of ascorbic acid have shown frank scurvy including capillary hemorrhage in the hind
+legs. No cases of clinical scurvy were seen on intakes of 0.5mg per day.
+
+2. At the upper end of the range, no increased response with intakes of 4.0 or 8.0mg over that shown for 2.0 mg were observed.
+
+3. The length of odntoblast cells in guniea pigs is apparently limited by the level of vitamin C intake, and ranges from about 30 microns with intakes of 0.5 mg of ascorbic acid daily, to a maximum of about 70 microns with intakes of
+2 mg or over. Within this range of intake, the odontoblast length bears a logarithmic relation to the vitamin C fed.
+
+**NOTE** Information about the experiment was obtained from a copy of the article "THE GROWTH OF THE ODONTOBLASTS OF THE INCISOR TOOTH AS A CRITERION OF THE VITAMIN C INTAKE OF THE GUINEA PIG" by EW Crampton (Downloaded from jn.nutrition.org on November 9, 2015)
+
+```{r, sessinfo, eval=TRUE}
+sessionInfo()
+
+```

@@ -1,0 +1,7 @@
+"Model","Accuracy","Kappa","MissedPts"
+"RanForest",96,94,3
+"GBM",94.7,92,4
+"NBayes",96,94,3
+"NeuralN",96,94,3
+"Multinom",98.7,98,1
+"SVM",93.3,90,5
