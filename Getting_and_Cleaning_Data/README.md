@@ -28,3 +28,15 @@ The run_analysis R script contains:
 - Returns two sets of the same tidy data
     
 The CodeBook markdown document contains information about the dataset and how the dataset was obtained.  The parameters used for the Human Activity Recognition Using Smartphones Dataset can be read in part in the codeBook and in greater detail at this webiste <http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones>.
+
+
+
+
+
+
+
+
+
+
+
+

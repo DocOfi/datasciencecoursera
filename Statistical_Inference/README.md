@@ -25,6 +25,8 @@ There are two course project required for this course:
 This Repo contains the following:
 
 - A ReadMe markdown document
+- A Tooth.Rmd document
+- A Tooth.md document
 - A Tooth.docx microsoft word document
 - A Tooth.html document
 - A Tooth.pdf document
@@ -34,7 +36,11 @@ This Repo contains the following:
 - A index1.png file
 - A index2.png file
 
-The README markdown document is displayed by default by GitHub whenever you visit a GitHub repository. The document you are reading now is the README.md file. This README markdown document contains information about the content of this repo and instructions on how to use the content of this repo
+The README markdown document is displayed by default by GitHub whenever you visit a GitHub repository. The document you are reading now is the README.md file. This README markdown document contains information about the content of this repo and instructions on how to use the content of this repo.
+
+The Tooth.Rmd document contains my first course project for this course in R markdown format.
+
+The Tooth.md document contains my first course project for this course in microsoft word format.
 
 The Tooth.docx document contains my first course project for this course in microsoft word format.
 
