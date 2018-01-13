@@ -3,7 +3,7 @@
 
 [<img src="https://about.coursera.org/careers/wp-content/uploads/2017/07/coursera-fb-1.png" width="150" height="150"/>]
 
-[<img src="https://courseradatascience.files.wordpress.com/2014/08/tumblr_mzr3hvf0671tqzc7ko1_1280.jpg" width="300" height="150"/>]
+[<img src="https://courseradatascience.files.wordpress.com/2014/08/tumblr_mzr3hvf0671tqzc7ko1_1280.jpg" width="450" height="300" align="center"/>]
 
 
 ### Courses
