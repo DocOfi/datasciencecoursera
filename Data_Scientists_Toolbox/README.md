@@ -1,6 +1,6 @@
 ### My course project in the [Data Scientist's Toolbox]("https://www.coursera.org/course/datascitoolbox")
 
-This repository contains my course project submitted through GitHub for the [Data Scientist's Toolbox]("https://www.coursera.org/course/datascitoolbox") course in Coursera. 
+This folder contains my course project submitted through GitHub for the [Data Scientist's Toolbox]("https://www.coursera.org/course/datascitoolbox") course in Coursera. 
 
 [<img src="https://coursera-course-photos.s3.amazonaws.com/37/6352a069b511e3ae92c39913bb30e0/DataScientistsToolbox.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
@@ -16,7 +16,7 @@ The primary goal for this assignment is to set up with R, Rstudio, Github, and t
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - README.md
 

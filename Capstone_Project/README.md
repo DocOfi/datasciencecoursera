@@ -4,7 +4,7 @@
 
 <h3 align="left"><p style="color:midnightblue">Course Description</p></h3> 
 
-This repository contains my course project submitted through GitHub for the course [Data Science Capstone]("https://www.coursera.org/course/dsscapstone") in Coursera. This is the final course in the Johns Hopkins Data Science Specialization. 
+This folder contains my course project submitted through GitHub for the course [Data Science Capstone]("https://www.coursera.org/course/dsscapstone") in Coursera. This is the final course in the Johns Hopkins Data Science Specialization. 
 
 The capstone project give students an opportunity to take all the skills they've learned from the specialization and apply them to a project, starting from the ground up. It begins with a raw data set and finally ending with developing a product for presentation. The Project will be drawn from real-world problems.
 
@@ -25,7 +25,7 @@ Natural language processing (NLP) is a field of computer science, artificial int
 
 <h3 align="left"><p style="color:midnightblue">Content</p></h3>
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadMe markdown document
 - finaltxt.md

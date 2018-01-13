@@ -2,7 +2,7 @@
 
 ### Course Description
 
-This repository contains my course projects 1 and 2 submitted through GitHub for the course [Reproducible Research]("https://www.coursera.org/course/repdata") in Coursera. This is the fifth course in the Johns Hopkins Data Science Specialization. The objective of the course is to teach the learner the concepts and tools behind reporting modern data analyses in a reproducible manner.
+This folder contains my course projects 1 and 2 submitted through GitHub for the course [Reproducible Research]("https://www.coursera.org/course/repdata") in Coursera. This is the fifth course in the Johns Hopkins Data Science Specialization. The objective of the course is to teach the learner the concepts and tools behind reporting modern data analyses in a reproducible manner.
 
 [<img src="https://coursera-course-photos.s3.amazonaws.com/b2/e9388069b611e3ae92c39913bb30e0/ReportingData.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
@@ -24,7 +24,7 @@ The basic goal of the second assignment is to explore the NOAA Storm Database an
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadME markdown document
 - A CourseProject1 folder

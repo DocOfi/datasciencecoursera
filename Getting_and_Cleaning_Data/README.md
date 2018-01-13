@@ -2,7 +2,7 @@
 
 #### Course Description
 
-This repository contains my course project 2 submitted through GitHub for the course [Getting and Cleaning Data]("https://www.coursera.org/course/getdata") in Coursera. This is the third course in the Johns Hopkins Data Science Specialization. The objective of the course is to teach the learner how to gather, clean, and manage data from a variety of sources using R.
+This folder contains my course project 2 submitted through GitHub for the course [Getting and Cleaning Data]("https://www.coursera.org/course/getdata") in Coursera. This is the third course in the Johns Hopkins Data Science Specialization. The objective of the course is to teach the learner how to gather, clean, and manage data from a variety of sources using R.
 
 [<img src="https://coursera-course-photos.s3.amazonaws.com/6d/aac7c069b611e39de639278c4f9dba/ObtainingData.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
@@ -13,7 +13,7 @@ The purpose of this assignment is to demonstrate the student's ability to collec
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadMe markdown document
 - A run_analysis R script

@@ -1,5 +1,13 @@
 # My course projects in Coursera's Johns Hopkins Specialization in Data Science course
 
+
+[<img src="https://about.coursera.org/careers/wp-content/uploads/2017/07/coursera-fb-1.png" width="150" height="150"/>]
+
+[<img src="https://courseradatascience.files.wordpress.com/2014/08/tumblr_mzr3hvf0671tqzc7ko1_1280.jpg" width="300" height="150" align = "left/>]
+
+
+### Courses
+
 This repository contains all my course projects submitted through GitHub for the Data Science Specialization course in Coursera. The courses comprising the Data Science Specialization are:
 
 - [Data Scientist's Toolbox]("https://www.coursera.org/course/datascitoolbox")
@@ -20,6 +28,9 @@ The courses are taught by Brian Caffo, Jeff Leek, and Roger D. Peng.
 - Jeff Leek, PhD, Associate Professor, Biostatistics
 
 from Johns Hopkins University
+
+[<img src="https://coursera-university-assets.s3.amazonaws.com/74/7ae340ec6911e5b395490a2a565172/JHU-Logo-Square-Mini_180px.png" width="150" height="150"/>](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
+
 
 ### Content 
 

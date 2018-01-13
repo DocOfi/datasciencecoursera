@@ -1,6 +1,6 @@
 ### My course project in the [R Programming]("https://www.coursera.org/course/rprog") Course in Coursera
 
-This repository contains my course project submitted through GitHub for the [R Programming]("https://www.coursera.org/course/rprog") course in Coursera. 
+This folder contains my course project submitted through GitHub for the [R Programming]("https://www.coursera.org/course/rprog") course in Coursera. 
 
 [<img src="https://coursera-course-photos.s3.amazonaws.com/5e/b4ef8069b511e3ae92c39913bb30e0/Rprogramming.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
@@ -17,7 +17,7 @@ The primary goal for this assignment is to modify/create functions that will be 
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - A best.R
 - A cachematrix.R

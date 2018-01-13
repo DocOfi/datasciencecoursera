@@ -83,7 +83,7 @@ The overall goal of this assignment is to explore the National Emissions Invento
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - plot1.png 
 - plot2.png 

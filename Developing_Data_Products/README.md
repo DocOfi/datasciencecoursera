@@ -1,10 +1,10 @@
 ### My course project in the [Developing Data Products]("https://www.coursera.org/course/devdataprod")
 
-[<img src="https://coursera-course-photos.s3.amazonaws.com/b6/fd088169b511e39de639278c4f9dba/DevelopingDataProducts.jpg?auto=format%2Ccompress&dpr=1">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
+[<img src="https://coursera-course-photos.s3.amazonaws.com/b6/fd088169b511e39de639278c4f9dba/DevelopingDataProducts.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
 <h3 align="left"><p style="color:midnightblue">Course Description</p></h3>
 
-This repository contains my course project submitted through GitHub for the course [Developing Data Products]("https://www.coursera.org/course/devdataprod") in Coursera. This is the ninth course in the Johns Hopkins Data Science Specialization. 
+This folder contains my course project submitted through GitHub for the course [Developing Data Products]("https://www.coursera.org/course/devdataprod") in Coursera. This is the ninth course in the Johns Hopkins Data Science Specialization. 
 
 A data product is the production output from a statistical analysis. Data products automate complex analysis tasks or use technology to expand the utility of a data informed model, algorithm or inference. This course covers the basics of creating data products using Shiny, R packages, and interactive graphics. The course will focus on the statistical fundamentals of creating a data product that can be used to tell a story about data to a mass audienc
 
@@ -28,7 +28,7 @@ My pitch presentation
 
 <h3 align="left"><p style="color:midnightblue">Content</p></h3>
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadMe markdown document
 - A Miscerr.Rpres  document

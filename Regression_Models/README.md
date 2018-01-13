@@ -4,7 +4,7 @@
 
 <h3 align="left"><p style="color:midnightblue">Course Description</p></h3> 
 
-This repository contains my course project submitted through GitHub for the course [Regression Models]("https://www.coursera.org/course/regmods") in Coursera. This is the seventh course in the Johns Hopkins Data Science Specialization. The Regression Models Course give students an opportunity to use regression models, the most important statistical analysis tool in the data scientist's toolkit. 
+This folder contains my course project submitted through GitHub for the course [Regression Models]("https://www.coursera.org/course/regmods") in Coursera. This is the seventh course in the Johns Hopkins Data Science Specialization. The Regression Models Course give students an opportunity to use regression models, the most important statistical analysis tool in the data scientist's toolkit. 
 
 This course covers regression analysis, least squares and inference using regression models. Special cases of the regression model, ANOVA and ANCOVA was covered as well, including analysis of residuals and variability. The course covers modern thinking on model selection and novel uses of regression models including scatterplot smoothing.
 
@@ -17,7 +17,7 @@ The student is required to take the mtcars data set and write up an analysis to 
 
 <h3 align="left"><p style="color:midnightblue">Content</p></h3>
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadMe markdown document
 - RegM21a.pdf

@@ -2,7 +2,7 @@
 
 ### Course Description
 
-This repository contains my course project 2 submitted through GitHub for the course Exploratory Data Analysis in Coursera. The course covers the essential exploratory techniques for summarizing data. Exploratory techniques are important for eliminating or sharpening potential hypotheses about the world that can be addressed by the data. 
+This folder contains my course project 2 submitted through GitHub for the course Exploratory Data Analysis in Coursera. The course covers the essential exploratory techniques for summarizing data. Exploratory techniques are important for eliminating or sharpening potential hypotheses about the world that can be addressed by the data. 
 
 [<img src="https://coursera-course-photos.s3.amazonaws.com/fa/fc1b7069b511e39de639278c4f9dba/ExploratoryDataAnalysis.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
@@ -20,7 +20,7 @@ The overall goal of the second course project is to explore the National Emissio
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadMe markdown document
 - A CourseProject1 folder

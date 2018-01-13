@@ -4,7 +4,7 @@
 
 #### Course Description
 
-This repository contains my course project submitted through GitHub for the course [Practical Machine Learning]("https://www.coursera.org/course/predmachlearn") in Coursera. This is the eigth course in the Johns Hopkins Data Science Specialization. The course covers the basic components of building and applying prediction functions with an emphasis on practical applications. The course provides basic grounding in concepts such as training and tests sets, overfitting, and error rates and will also introduce a range of model based and algorithmic machine learning methods including regression, classification trees, Naive Bayes, and random forests. The course also covers the complete process of building prediction functions including data collection, feature creation, algorithms, and evaluation.
+This folder contains my course project submitted through GitHub for the course [Practical Machine Learning]("https://www.coursera.org/course/predmachlearn") in Coursera. This is the eigth course in the Johns Hopkins Data Science Specialization. The course covers the basic components of building and applying prediction functions with an emphasis on practical applications. The course provides basic grounding in concepts such as training and tests sets, overfitting, and error rates and will also introduce a range of model based and algorithmic machine learning methods including regression, classification trees, Naive Bayes, and random forests. The course also covers the complete process of building prediction functions including data collection, feature creation, algorithms, and evaluation.
  
 #### Introduction
 
@@ -27,7 +27,7 @@ The data for this project come from this source: [http://groupware.les.inf.puc-r
 
 ### Content 
 
-This Repo contains the following:
+This folder contains the following:
 
 - A ReadMe markdown document
 - A ReadMe html document
