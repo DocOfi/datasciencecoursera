@@ -1,27 +1,46 @@
-# Illustrating the Central Limit Theorem Using the Exponential Distribution in R
-DocOfi  
-November 17, 2015  
+---
+title: Illustrating the Central Limit Theorem Using the Exponential Distribution in
+  R
+author: "DocOfi"
+date: "November 17, 2015"
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+  word_document:
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 8
+---
 
 
 
-#### Synopsis
+#### My course project in the [Statistical Inference]("https://www.coursera.org/course/statinference")
+
+### Course Description
+
+This markdown document contains my first course project submitted through GitHub for the course [Statistical Inference]("https://www.coursera.org/course/statinference") in Coursera. This is the sixth course in the Johns Hopkins Data Science Specialization. The objective of the course is to teach the learner how to gather, clean, and manage data from a variety of sources using R.
+
+[<img src="https://coursera-course-photos.s3.amazonaws.com/fc/f4739069b611e39de639278c4f9dba/StatisticalInference.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
+
+### Synopsis
 The Central Limit Theorem (CLT) states that the distribution of averages of iid variables becomes that of a standard normal as the sample size increases, regardless of the underlying distribution. We know from the Law of Large Numbers (LLN) that the sample mean/variance/standard deviation are all consistent estimators of their population counterparts. Using the Exponential Distribution in R we will show how the distribution of averages of iid variables approximates that of a standard normal distribution as the sample size increases.
 
-#### Simulations
+### Simulations
 
 We compare the distributions of 100 simulations of 40 random exponentials variables (RExpoV) and their means.  We simulated the data using rexp(n, lambda) where lambda is the rate parameter set at 0.2 and present its distribution in a histogram. The mean of the exponential distribution (theoretical mean) is 1/lambda and the standard deviation is also 1/lambda (theoretical standard deviation).
 
-![fig.1 Comparing the distributions of 100 simulations of 40 random exponentials variables (RExpoV) and their means and the means of 10000 simulations of 40 random exponentials variables (RExpoV)](CLT2_files/figure-html/expodist-1.png) 
+![fig.1 Comparing the distributions of 100 simulations of 40 random exponentials variables (RExpoV) and their means and the means of 10000 simulations of 40 random exponentials variables (RExpoV)](README_files/figure-html/expodist-1.png)
 
 We can see that the distribution of the simulated data from an exponential distribution (figure on the left) is far from symmetrical, a far cry from the familiar shape of the bell curve of the normal distribution.  However, the means of these Exponential random variables (figure in the middle and on the right) approximate a normal distribution in accordance with the Central Limit Theorem.
 
 Even with just a hundred simulations, the distribution of averages of 40 rexp variables slightly resemble the shape of a bell curve with the median (red line) approximating the mean (blue line).  Increasing the number of simulations to 10,000 further aproximated the normal distribution, becoming more compact in the middle, increasing in height, in agreement with the Central Limit Theorem. 
 
-#### Comparing the sample mean with the theoretical mean
+### Comparing the sample mean with the theoretical mean
 
 The mean of our  100 simulations (**4.9926226**) and 10,000 simulations (**5.006966**) closely approximates the (theoretical) mean of the exponential distribution which is equal to 1/lambda = 1/.2 = 5.  We know that the sample mean is an unbiased and consistent estimator of the population mean, from the Law of Large Numbers. Even with just a 100 simulations the mean is closely approximated resulting in a more normal-like distribution near the peak. 
 
-#### Comparing the sample variance with the theoretical variance
+### Comparing the sample variance with the theoretical variance
 
 From the standard deviation of RExpoV (1/lambda = 5), we can compute the (theoretical) variance ((1/lambda)^2/n = 25/40= 0.625). The variance of our sample of 100 means (**0.7043916**) and  10,000 (**0.6134287**) closely approximates the theoretical variance. We also know that the variance is an unbiased and consistent estimator of the population variance according to the Law of Large Numbers. As the sample size increased from 100 to 10,000, the variance decreased resulting in a more normal-like distribution around the tails.  
 
@@ -31,7 +50,7 @@ These properties of the mean and variance allow us to estimate the population me
 
 We now examine the symmetry of the distribution with 10,000 means in detail. We'll also compare the distribution between the means of 100 samples and the means of 10,000 samples using boxplots.
 
-![fig.2. Comparing the distribution of the means of 100 samples and the means of 10,000 samples using boxplots.](CLT2_files/figure-html/simul40exp-1.png) 
+![fig.2. Comparing the distribution of the means of 100 samples and the means of 10,000 samples using boxplots.](README_files/figure-html/simul40exp-1.png)
 
 Visual examination of the histogram shows bilateral symmetry with the mean and median approximating each other, both characteristics of a normal distribution. The symmetry of the distribution is also evident in both boxplots. There is an apparent equal distance between the median and the third and first quantile (Inter-quartile range, IQR). The median is also centered between the maximum and minimum values. The medians of both boxplot centered at the value 5 but the IQR of the boxplot with 10,000 means  is smaller  or more compact, implying less variance in the values near the median.  
 
@@ -61,15 +80,18 @@ We will then subtract the 60th percentile from the 40th percentile, the 70th wit
 
 In the standard normal distribution, the mean and median have the same value of 1 and the standard deviation is 1.  We find that the values representing the different percentiles approximates each other closely, except for the  values of percentiles farthest from the median. To show this graphically we used the function qqnorm (See below).
 
-<img src="CLT2_files/figure-html/qqp-1.png" title="fig.3 Using q norm to determine if the our simulated data follows a normal distribution" alt="fig.3 Using q norm to determine if the our simulated data follows a normal distribution" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="README_files/figure-html/qqp-1.png" alt="fig.3 Using q norm to determine if the our simulated data follows a normal distribution"  />
+<p class="caption">fig.3 Using q norm to determine if the our simulated data follows a normal distribution</p>
+</div>
 
 The values fall  closely on the 45 degree line in the middle, indicative of a normal distribution. Finally, the Shapiro-Wilk normality test (**0.9845251**) reveal a p-value greater than 0.05 for our 100 means of 40 RExpoV (the means of 10,000 RExpoV exceeded the limit of of 5000 sample size of the shapiro.test). We accept that our simulated data is normally distributed.
 
-#### Conclusions
+### Conclusions
 
 Our simulation affirms what the Central limit Theorem is stating, that if you take many repeated samples from a population, regardless of the underlying distribution and calculate the averages, the distribution of those averages will approximate those of the normal distributed with increasing number of samples.
 
-#### Appendix
+### Appendix
 
 ##### Codes
 
@@ -179,9 +201,11 @@ sessionInfo()
 ```
 
 ```
-## R version 3.2.1 (2015-06-18)
-## Platform: i386-w64-mingw32/i386 (32-bit)
-## Running under: Windows 8 (build 9200)
+## R version 3.4.1 (2017-06-30)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows 7 x64 (build 7600)
+## 
+## Matrix products: default
 ## 
 ## locale:
 ## [1] LC_COLLATE=English_United States.1252 
@@ -194,11 +218,12 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] pastecs_1.3-18 boot_1.3-17   
+## [1] pastecs_1.3-18 boot_1.3-19   
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] magrittr_1.5    formatR_1.2     tools_3.2.1     htmltools_0.2.6
-##  [5] yaml_2.1.13     stringi_0.5-5   rmarkdown_0.8.1 knitr_1.11     
-##  [9] stringr_1.0.0   digest_0.6.8    evaluate_0.7.2
+##  [1] compiler_3.4.1  backports_1.1.1 magrittr_1.5    rprojroot_1.3-1
+##  [5] tools_3.4.1     htmltools_0.3.6 yaml_2.1.14     Rcpp_0.12.14   
+##  [9] stringi_1.1.6   rmarkdown_1.8   highr_0.6       knitr_1.17     
+## [13] stringr_1.2.0   digest_0.6.13   evaluate_0.10.1
 ```
 
