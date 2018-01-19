@@ -20,7 +20,7 @@ Natural language processing (NLP) is a field of computer science, artificial int
 
 [Predicting The Next Word Pitch presentation](http://rpubs.com/DocOfi/194236)
 
-[Predicting the Next Word App](https://docofi.shinyapps.io/capstone/)
+[Predicting the Next Word App](https://docofi.shinyapps.io/ShinyApp16/)
 
 
 <h3 align="left"><p style="color:midnightblue">Content</p></h3>
