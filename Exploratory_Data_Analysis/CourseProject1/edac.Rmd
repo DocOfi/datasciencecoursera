@@ -1,0 +1,154 @@
+---
+title: "Exploratory Data Analysis"
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
+    social: menu
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+library(xts)
+library(dygraphs)
+```
+
+
+Course Project 1 {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### The dataset for this exercise, Electric power consumption comes from the from the UC Irvine Machine Learning Repository
+```{r}
+elec <- read.csv("household_power_consumption.txt", header = TRUE, stringsAsFactors = FALSE, sep = ";", na.strings = " ")
+## Converting the Date Variable from Character to Date
+elec$Date <- as.Date(elec$Date, format = "%d/%m/%Y")
+elec$Global_active_power <- as.numeric(elec$Global_active_power)
+elec$Global_reactive_power <- as.numeric(elec$Global_reactive_power)
+elec$Voltage <- as.numeric(elec$Voltage)
+elec$Global_intensity <- as.numeric(elec$Global_intensity)
+elec$Sub_metering_1 <- as.numeric(elec$Sub_metering_1)
+elec$Sub_metering_2 <- as.numeric(elec$Sub_metering_2)
+elec$Sub_metering_3 <- as.numeric(elec$Sub_metering_3)
+elec$Date_Time <- paste(elec$Date, elec$Time)
+elec$Date_Time <- as.POSIXct(elec$Date_Time)
+## Subsetting the particular data we need
+feb1and2 <- elec[elec$Date >= "2007-02-01" & elec$Date <= "2007-02-02", ]
+g <- ggplot(data = feb1and2, aes(x = Global_active_power)) + geom_histogram(fill = "red", color = "black", bins = 18) + ylab("Frequency") + ggtitle("Global Active Power (kilowatts)") + xlab("Global Active Power (Kilowatt)")
+ggplotly(g)
+```
+
+***
+
+- The dataset contains measurements of electric power consumption in one household with a one-minute sampling rate over a period of almost 4 years. Different electrical quantities and some sub-metering were recorded.
+
+- Click on the white tile next to the blue tile above to move to the next slide.
+
+### The `Global_active_power variable contains measurements of household global minute-averaged reactive power (in kilowatt). The plot covers the period from February 1 to 3
+
+```{r}
+g2 <- ggplot(data = feb1and2, aes(y = Global_active_power, x = Date_Time)) + geom_line(color = "black", group = 1) 
+ggplotly(g2)
+```
+
+***
+
+- The task for this exercise is to reconstruct the plots on the center panel using the base plotting system.
+
+- The plot shown on the center panel at the left was constructed using the ggplot function from the package ggplot2 and the ggplotly function from the package plotly. 
+
+- The resulting plot allows the user to manipulate the plot to see greater detail just by using the mouse without having to write any code or create a new plot.
+
+### Energy Sub-Metering 1-3 measured power consumption in different rooms in the house 
+
+```{r}
+subM <- feb1and2 %>% select(Date_Time, Sub_metering_1, Sub_metering_2, Sub_metering_3) %>% gather(key = key, value = value, -Date_Time)
+g3 <- ggplot(data = subM, aes(y = value, x = Date_Time, group = key, color = key)) + geom_line(linetype = "dashed", size = 1) + ylab("Energy Sub metering")
+ggplotly(g3)
+```
+
+***
+
+- energy `Sub_metering_1` corresponds to the kitchen, containing mainly a dishwasher, an oven and a microwave (hot plates are not electric but gas
+powered).
+
+- energy `Sub_metering_2` corresponds to the laundry room, containing a washing-machine, a tumble-drier, a refrigerator and a light.
+
+- energy `Sub_metering_3` corresponds to an electric water-heater and an air-conditioner.
+
+- By now you probably have noticed that when you hover the cursor on top of the plot area, icons appear on the upper right corner of the plot. If you hover the cursor on top of an icon it will reveal its name to you.
+
+- Click on the icon to disover how to use it.
+
+### Minute-averaged voltage (in volt) for the period between February 1 and February 3
+
+```{r}
+volt <- feb1and2 %>% select(Date_Time, Voltage) %>% gather(key = key, value = value, -Date_Time)
+g4 <- ggplot(data = volt, aes(y = value, x = Date_Time, group = key, color = key)) + geom_line(linetype = "dashed", size = 1) + ylab("minute-averaged voltage (in volt)")
+ggplotly(g4)
+```
+
+***
+
+- energy `Voltage` corresponds to the minute-averaged voltage (in volt).
+
+- Click on the Zoom icon and draw a square on an area of the plot that interests you,  The area will be magnified for you to examine in detail
+
+- Click on the Pan icon and you can move the plot in different directions.
+
+- Click on the + or - sign to Zoom in and out. 
+
+
+### Global Reactive Power (in kilowatts) for the period between February 1 and February 3
+
+```{r}
+volt <- feb1and2 %>% select(Date_Time, Global_reactive_power) %>% gather(key = key, value = value, -Date_Time)
+g5 <- ggplot(data = volt, aes(y = value, x = Date_Time, group = key, color = key)) + geom_line(linetype = "dashed", size = 1) + ylab("Global Reactive Power (in kilowatts)")
+ggplotly(g5)
+```
+
+***
+
+- `Global_reactive_power` corresponds to the household global minute-averaged reactive power (in kilowatt)
+
+- Click on the Camera icon to download the plot as an image in png format.
+
+- Click on the Reset axes icon to go back to the starting point when you first viewed the plot.
+
+- Click on the Toggle Spike Lines icon to make vertical and horizontal lines that connect to the x and y axes appear 
+
+### Global Active Power (in kilowatts) for the period between February 1 and February 3
+
+```{r}
+yr2007 <- elec %>% filter(Date >= "2007-01-01" & Date <= "2007-12-31") %>% arrange(Date)
+yr2007ts <-xts(x = yr2007$Global_active_power, order.by = yr2007$Date_Time)
+dygraph(yr2007ts) %>% dyRangeSelector()
+```
+
+***
+
+- Reconstructing the plot on the center panel is no longer a part of the requirements for the course project. The plot is shown to illustrate plotting using the dygraph function from the package dysgraph.
+
+- At first glance, the plot appears not to be useful. The lines are too close together. It looks like too much information was crammed in a single plot.
+
+- By moving the left and right control handles located on both ends at the bottom of the plot you can manipulate the plot to show in detail the first and second day in February 2007. That's the second plot that needs to be reconstructed for this course project.
+
+### Energy Sub-Metering 1-3 (2007) - corresponds to an electric water-heater and an air-conditioner.
+
+```{r}
+yr2007 <- elec %>% filter(Date >= "2007-01-01" & Date <= "2007-12-31") %>% arrange(Date) %>% select(Sub_metering_1, Sub_metering_2, Sub_metering_3, Date_Time)
+yr2007ts <-xts(x = yr2007, order.by = yr2007$Date_Time)
+dygraph(yr2007ts) %>%
+        dyRangeSelector()
+```
+
+***
+ 
+- An alternative is to left click on the plot just before February 1 and then while continuing to press on the mouse, move the cursor horizontally just after February 2. This should create a grey area in the shape of a rectangle. When you let go of the mouse, the area selected by the grey rectangle can now be seen in greater detail. You can now see the image of the third plot that is required for this course project
+
+- Hope you found this short presentation entertaining and may it serve to tickle your interest even more in R as you plod along your journey towards the capstone project. Good luck!!!
+
+
