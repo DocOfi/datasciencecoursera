@@ -121,6 +121,8 @@ The four plots that you will need to construct are shown below.
 This folder contains the following:
 
 - figure 
+- edac.Rmd
+- edac.html
 - plot1.png 
 - plot2.png 
 - plot3.png 
@@ -132,11 +134,13 @@ This folder contains the following:
 - A ReadMe markdown document
 
 
-The README markdown document is displayed by default by GitHub whenever you visit a GitHub repository. The document you are reading now is the README.md file. It contains the plots that need to be recreated and information about the content of this repo
+The README markdown document is displayed by default by GitHub whenever you visit a GitHub repository. The document you are reading now is the README.md file. It contains the plots that need to be recreated and information about the content of this repo.
 
-The .png files are images that are displayed in the README.md and README.Rmd documents
+The edac.Rmd and edac.html contains a flexdashboard presentation for this course to illustrate the dygraphs package dygraph function in plotting time series data. You may vie the presentation by clicking on this link [EDAC flexdashboard presentation](https://htmlpreview.github.io/?https://github.com/DocOfi/datasciencecoursera/Exploratory_Data_Analysis/CourseProject1/edac.html)
 
-The .R files contain the codes to create the images saved in the .png files
+The .png files are images that are displayed in the README.md and README.Rmd documents.
+
+The .R files contain the codes to create the images saved in the .png files.
 
 The figure folder contains the images used in the README markdown document.
 
