@@ -1,0 +1,540 @@
+---
+title: "Plotting using Metricsgraphics"
+author: "Edmund julian L Ofilada"
+date: "January 22, 2018"
+output: 
+        html_document:
+                keep_md: TRUE
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Plotting using the Metricsgraphics package
+
+This document was created as an introduction for students of the Coursera course Exploratory Data Analysis offered by Johns Hopkins University to the plotting functions in the package metricgraphics. While trying to learn how to use the the package metricgraphics, I thought to myself, this could have been very useful for me when I was taking the Exploratory Data Analysis Course. The document is patterned after the course project 2 assignment for the course. 
+
+The example plots provided for in this document borrowed heavily from the vignette, [Introduction to metricsgraphics](http://cran.r-project.org/web/packages/metricsgraphics/vignettes/introductiontometricsgraphics.html) by Bob Rudis.  Bob Rudis is the author and maintainer of the package metricsgraphics. You can find him in Github at http://github.com/hrbrmstr/metricsgraphics. The functions and syntax for using metricgraphics are easy to learn and it provides a nice interface for the presentation of plots.
+
+The content of this document borrowed heavily from the datascience specialization course offered by Coursera. Particularly, from the presentations of Roger D. Peng, Associate Professor of Biostatistics Johns Hopkins Bloomberg School of Public Health. I took the course in 2015 and up to now the content still manages to teach me something new, whenever I re-visit it. While figuring out how to work git and GitHub, I accidentally, cloned the whole content of the course from GitHub. It was such a large file and took forever to download. I was eating at a fastfood chain using their wifi as I didn't have wifi of my own. The waiters and managers where giving me the eye suggesting that I order again, since I was in there for more than an hour already. it was a mistake worth repeating over and over again.
+
+The datascience course will probably be remade as some years has passed since it was launched and there has been so much new development in terms of packages in R. This presentation tries to show how a new package may fit in learning the concepts of the Exploratory Data Analysis Course.
+
+### Introduction
+
+Fine particulate matter (PM2.5) is an ambient air pollutant for which there is strong evidence that it is harmful to human health. In the United States, the Environmental Protection Agency (EPA) is tasked with setting national ambient air quality standards for fine PM and for tracking the emissions of this pollutant into the atmosphere. Approximatly every 3 years, the EPA releases its database on emissions of PM2.5. This database is known as the National Emissions Inventory (NEI). You can read more information about the NEI at the <a href="http://www.epa.gov/ttn/chief/eiinformation.html">EPA National Emissions Inventory web site</a>.
+
+For each year and for each type of PM source, the NEI records show how many tons of PM2.5 were emitted from that source over the course of the entire year. The data that you will use for this assignment are for 1999, 2002, 2005, and 2008.
+
+### Data
+
+The data for this assignment are available from the course web site as a single zip file:
+
+<a href="https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2FNEI_data.zip">Data for Peer Assessment</a> [29Mb]
+The zip file contains two files:
+
+PM2.5 Emissions Data (summarySCC_PM25.rds): This file contains a data frame with all of the PM2.5 emissions data for 1999, 2002, 2005, and 2008. For each year, the table contains number of tons of PM2.5 emitted from a specific type of source for the entire year. Here are the first few rows.
+
+|    |   fips  |   SCC   | Pollutant  | Emissions |  type  |  year  |
+|--- | ------- | ------- | ---------- | --------- | ------ | ------ |   
+| 4  |  09001  | 10100401|  PM25-PRI  |  15.714   |  POINT |  1999  |
+| 8  |  09001  | 10100404|  PM25-PRI  | 234.178   |  POINT |  1999  |
+| 12 |  09001  | 10100501|  PM25-PRI  |   0.128   |  POINT |  1999  |
+| 16 |  09001  | 10200401|  PM25-PRI  |   2.036   |  POINT |  1999  |
+| 20 |  09001  | 10200504|  PM25-PRI  |   0.388   |  POINT |  1999  |
+
+* <b>fips</b>: A five-digit number (represented as a string) indicating the U.S. county
+
+* <b>SCC</b>: The name of the source as indicated by a digit string (see source code classification table)
+
+* <b>Pollutant</b>: A string indicating the pollutant
+
+* <b>Emissions</b>: Amount of PM2.5 emitted, in tons
+
+* <b>type</b>: The type of source (point, non-point, on-road, or non-road)
+
+* <b>year</b>: The year of emissions recorded
+
+Source Classification Code Table (Source_Classification_Code.rds): This table provides a mapping from the SCC digit strings in the Emissions table to the actual name of the PM2.5 source. The sources are categorized in a few different ways from more general to more specific and you may choose to explore whatever categories you think are most useful. For example, source "10100101" is known as "Ext Comb /Electric Gen /Anthracite Coal /Pulverized Coal".
+
+### loading the packages we'll need
+
+```{r loadpack, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(RColorBrewer)
+library(htmltools)
+library(metricsgraphics)
+# this lets us add a title to the plot since the package follows the guidance
+# of the htmlwidgets authors and does not include the MetricsGraphics.js title
+# option to ensure consistent div sizing.
+
+show_plot <- function(plot_object, title) {
+  div(style="margin:auto;text-align:center", strong(title), br(), plot_object)
+}
+```
+
+You can read each of the two files using the readRDS() function in R. For example, reading in each file can be done with the following code:
+
+### Reading in the data 
+
+```{r readinR, eval=TRUE, echo=TRUE, cache=TRUE}
+NEI <- readRDS("DATA/summarySCC_PM25.rds")             ###Reading in the data 
+SCC <- readRDS("DATA/Source_Classification_Code.rds")  ###Reading in the data 
+```
+
+as long as each of those files is in your current working directory (check by calling dir() and see if those files are in the listing).
+
+### Questions
+
+<p style="color: darkblue">We will ask a series of questions and allow the plots to provide the answers. Plots contstructed well can convey more in a single glance than a sentence of words.</p>.
+
+#### 1. Have total emissions from PM2.5 in Fresno county, California (fips = 06019) decreased from 1999 to 2008? .
+
+<br>
+
+```{r quest1}
+fresno <-filter(NEI, fips == "06019")                ### Subset data to only include fresno county
+fresno_by_yr <- fresno %>%                           ### take the data of fresno county
+        group_by(year) %>%                           ### group the data by year
+        summarize(Total_Emissions = sum(Emissions))  ### summarize emissions by taking their sum
+```
+
+```{r quest1mg}
+fresno_by_yr %>% 
+        mjs_plot(y = year,                                   ### plot variable year on y-axis    
+                 x = Total_Emissions,                        ### Plot Total Emission on x-axis
+                 width = 800,                                ### set width of plot to 800 pixels
+                 height = 400) %>%                           ### set height of plot to 800 pixels
+        mjs_bar() %>%                                        ### plot a bar graph
+        mjs_axis_x(xax_format = 'plain') %>%                 ### set x-axis format to plain
+        mjs_labs(x="Year", y="PM2.5 Emissions (tons)") %>%   ### add axis labels
+        show_plot("Air Quality Trends - Fresno County, CA")  ### provide title for the plot
+```
+
+<br>
+
+#### 2. Have total emissions from PM2.5 decreased in the Laramie County, Wyoming (fips = 56021) from 1999 to 2008?
+
+<br>
+
+```{r quest2, echo=FALSE}
+laramie <- NEI %>% filter(fips == 56021)            ### filter data to inlcude only Laramie County
+laramie_by_yr <- laramie %>%                        ### take the laramie data and
+        group_by(year) %>%                          ### group the data by year
+        summarize(Total_Emissions = sum(Emissions)) ### summarize the data by taking the sum per year
+```
+
+```{r quest2mg}
+laramie_by_yr %>% 
+        mjs_plot(x = year,                                   ### plot variable year on x-axis
+                 y = Total_Emissions,                        ### plot Total_Emission on y-axis
+                 width = 800,                                ### set width of plot to 800 pixels
+                 height = 400) %>%                           ### set height to 400
+        mjs_line(area = TRUE) %>%                            ### plot a line and shade the area below
+        mjs_axis_x(xax_format = 'plain') %>%                 ### format x-axis as plain
+        mjs_labs(x="Year", y="PM2.5 Emissions (tons)") %>%   ### add axis labels
+        show_plot("Air Quality Trends - Laramie County, WY") ### provide title for plot
+```
+
+<br>
+
+#### 3. Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) variable, which of these four sources have seen decreases in emissions from 1999-2008 for Fresno County? Which have seen increases in emissions from 1999-2008? 
+
+<br>
+
+```{r quest3, echo=FALSE}
+fresno_by_yr_type <- fresno %>%                                   ### take the fresno data
+        group_by(year, type) %>%                                  ### group data by year and type
+        summarize(Total_Emissions = sum(Emissions)) %>%           ### summarize data by taking its sum
+        spread(key = type, value = Total_Emissions)               ### structure data to wide format   
+names(fresno_by_yr_type) <- make.names(names(fresno_by_yr_type))  ### Change names of variables
+```
+
+```{r quest3mg}
+fresno_by_yr_type %>%                   ### take the summarized fresno data and
+  mjs_plot(x=year,                      ### plot the variable year on the x-axis
+           y=NON.ROAD,                  ### plot the variable NON>ROAD on the y axis
+           width=800,                   ### set plot width to 800 pixels
+           height=400) %>%              ### set plot height to 400 pixels
+  mjs_line() %>%                        ### create a line plot
+  mjs_add_line(NONPOINT) %>%            ### plot another line with the variable NONPOINT
+  mjs_add_line(ON.ROAD) %>%             ### plot another line with the variable ON.ROAD
+  mjs_add_line(POINT) %>%               ### plot another line with the variable POINT  
+  mjs_axis_x(xax_format="plain") %>%    ### format x-axis as plain
+  mjs_labs(x="PM2.5 Emissions (tons)", y="Year") %>%   ### add axis labels
+  mjs_add_legend(legend=c("NON-ROAD", "NONPOINT", "ON-ROAD", "POINT")) %>%    ### add legend to plot
+  show_plot("PM2.5 emission According to Sources, Fresno County, California") ### add title
+```
+
+<br>
+
+#### 4. Comparing Laramie county with Fresno county, which county had a more sustained decline in Pm2.5 emissions from 1999-2008?
+
+<br>
+
+```{r quest4mg}
+fresno_by_yr$year <- gsub("CST", "", strptime(fresno_by_yr$year, "%Y"))   ### format variable year
+fresno_by_yr$year <- gsub("25", "01", fresno_by_yr$year)                  ### change 25 to 01
+fresno_by_yr$year <- as.factor(fresno_by_yr$year)                         ### set year as factor
+fresno_by_yr$Total_Emissions <- as.integer(round(fresno_by_yr$Total_Emissions))  ### set Total_ Emission as integer
+names(fresno_by_yr) <- c("date", "value")                                 ### change variable names
+laramie_by_yr$year <- gsub("CST", "", strptime(laramie_by_yr$year, "%Y")) ### format variable year
+laramie_by_yr$year <- gsub("25", "01", laramie_by_yr$year)                ### change 25 to 01
+laramie_by_yr$year <- as.factor(laramie_by_yr$year)                       ### set year as factor
+laramie_by_yr$Total_Emissions <- as.integer(round(laramie_by_yr$Total_Emissions))  ### set Total_ Emission as integer
+names(laramie_by_yr) <- c("date", "value")                                ### change variable names
+
+fresno_by_yr %>%                       ### take the summarized fresno data by year
+  mjs_plot(x = date,                   ### assign the variable date to the x-axis
+           y = value,                  ### assign the variable value to the y-axis
+           width = 800,                ### set the width of the plot to 800 pixels
+           height = 300,               ### set the height of th plot to 300 pixels
+           linked = TRUE) %>%          ### link the two plots
+  mjs_axis_x(xax_format = "date",      ### format x-axis as date
+             xax_count = 4) %>%        ### set the ticks to 4
+  mjs_labs(x="Year", y="PM2.5 Emissions (tons)") %>%   ### add axis labels        
+  mjs_line(area = TRUE) -> mjs_brief_1 ### assign  name for linking
+
+laramie_by_yr %>%                      ### take the summarized laramie data by year
+  mjs_plot(x = date,                   ### assign the variable date to the x-axis
+           y = value,                  ### assign the variable value to the y-axis
+           width = 800,                ### set the width of the plot to 800 pixels
+           height = 300,               ### set the height of th plot to 300 pixels
+           linked = TRUE) %>%          ### link the two plots
+  mjs_axis_x(xax_format = "date",      ### format x-axis as date
+             xax_count = 4) %>%        ### set the ticks to 4
+  mjs_labs(x="Year", y="PM2.5 Emissions (tons)") %>%   ### add axis labels 
+  mjs_line() -> mjs_brief_2            ### assign name for linking
+
+div(style="margin:auto;text-align:center",            ### align text to center
+    strong("Fresno County, CA"), br(), mjs_brief_1,   ### set first text to bold
+    strong("Laramie County, WY"), br(), mjs_brief_2)  ### set second text to bold
+```
+
+<br>
+
+#### Annual average PM2.5 averaged over the period 2008 through 2010
+
+If i didn't accidentally downloaded the whole content of the datascience course repository from GitHub, I wouldn't have been able to find the various goodies stored within them. For example, there was a video presentation by Roger Peng on the 4th week of the course but the link to download the csv file used for the presentation was the not provided.
+
+Within the folders of the repository I downloaded, I found the R mardown files used to make the wondeful ioslide presentations as well as the csv file containing the averaged PM2.5 over the period from 2008 to 2010.
+
+We will now take a look at that file containing the averaged PM2.5 emissions in the USA from 2008 to 2010. The file according to Roger Peng comes from the [U.S. Environmental Protection Agency (EPA)](http://www.epa.gov/ttn/airs/airsaqs/detaildata/downloadaqsdata.htm). 
+
+<br>
+
+```{r}
+pollution <- read.csv("DATA/avgpm25.csv",               ### file to read
+                      colClasses = c("numeric",         ### set column classes
+                                     "character",
+                                     "factor",
+                                     "numeric",
+                                     "numeric"))
+head(pollution)                                         ### show first 6 rows of data
+```
+
+<br>
+
+PM2.5 Emissions Data (avgpm25.csv): This file contains a data frame of the annual average PM2.5 Emissions, averaged over the period 2008 through 2010. Please take note that unlike the previous dataset we explored, where the PM 2.5 Emissions were reported in units of tons, the units for the PM 2.5 Emissions levels in the current dataset we are exploring, are in micrograms per meter cube ($\mu g/m^3$)
+
+<br>
+
+The variables in the dataset are the following:
+
+- `pm2.5` - particulate matter measured in micrograms per meter cube ($\mu g/m^3$)
+- `fips` - A five-digit number (represented as a string) indicating the U.S. county
+- `region` - a factor which tells the location from where the observation was taken (west/east)
+- `longitude` - geospatial location in longitude
+- `latitude` - geospatial location in latitude 
+
+<br>
+
+```{r}
+summary(pollution$pm25)                                 ### 5-number summary
+```
+
+<br>
+
+The highest average PM2.5 emission for a county was $18.4~\mu g/m^3$ while the lowest was $3.8~\mu g/m^3$.   
+
+<br>      
+      
+#### 5. What is the distribution of averaged PM2.5 emissions across the USA from 2008 through 2010?
+
+<br>
+
+```{r}
+pollution %>% 
+        mjs_plot(pm25,                                  ### variable to plot on x-axis
+                 width="500px") %>%                     ### width of plot in pixels
+        mjs_histogram(bar_margin=2) %>%                 ### type of plot, space between bars =2
+        mjs_labs(x_label="PM2.5 Emissions (??g/m3") %>%   ### add label on x-axis
+        mjs_add_marker(12, "national standard") %>%     ### add horizontal line and label
+        show_plot("Average PM2.5 Emissions Across the USA")                     ### add title
+```
+
+The [U.S. Environmental Protection Agency (EPA)](http://www.epa.gov/ttn/airs/airsaqs/detaildata/downloadaqsdata.htm) sets the national ambient air quality standards for outdoor air pollution. For fine particle pollution (PM2.5), the "annual mean, averaged over 3 years" cannot exceed $12~\mu g/m^3$. Based on the histogram above, most of the averaged recorded observation fall within the standard.    
+
+<br>       
+    
+#### 6. Does more counties in the west exceed that national standard for fine particle pollution than counties in the east?       
+ 
+<br>       
+        
+```{r}
+show_plot <- function(plot_object, title) {             ### function to add title
+  div(style="margin:auto;text-align:left",              ### align title to left margin 
+      strong(title),                                    ### make title text bold
+      br(),                                             ### add space between title and plot
+      plot_object)                                      ### add plot 
+}
+
+pollution %>%
+        mjs_plot(x=latitude,                            ### variable to plot on x-axis
+                 y=pm25,                                ### variable to plot on y-axis
+                 width=600,                             ### set width to 600 pixels
+                 height=500,                            ### set height to 500 pixels
+                 right = 0,                             ### set right margin to 0
+                 top = 0) %>%                           ### set top margin to 0
+        mjs_point(color_accessor=region,                ### plot color according to region
+                  y_rug=TRUE,                           ### include rug
+                  color_type="category") %>%            ### plot color according to variable
+        mjs_labs(x="Latitude", y="PM25 Emissions (??g/m3") %>%  ### add x and y labels
+        mjs_add_baseline(12, "National Standard") %>%   ### add horizontal line
+        show_plot("East(blue) - West(red)")             ### add title
+```
+  
+<br>  
+  
+Based on the scatterplot above, it appears there are more counties from the east (blue dots) that exceed the horizontal line representing the national standard $12~\mu g/m^3$. 
+
+However, the plot also shows that there are counties from the west that have average pm2.5 levels that are far above the rest of the other counties in both east and west. 
+
+By utilizing the interactive feature of metricgraphics, we can identify the highest and lowest PM2.5 emission in the data and identify its latitude.
+
+Let's take a look at the individual distributions of the eastern and western counties.  
+
+<br>
+
+```{r}
+west <- subset(pollution, region == "west")             ### subset data region == west 
+east <- subset(pollution, region == "east")             ### subset data region == east
+
+east %>%
+        mjs_plot(pm25,                                 ### variable to plot on x-axis
+                 width="375px") %>%                    ### width of plot in pixels
+        mjs_histogram(bar_margin=2) %>%                ### type of plot, space between bars
+        mjs_labs(x_label="PM2.5 Emissions (??g/m3)")  %>%                  ### x and y axis labels
+        mjs_axis_y(min_y = 0,
+                   max_y = 120) %>%                    ### set y-axis range
+        mjs_add_marker(12, "national standard") %>%    ### add horizontal line
+        mjs_add_legend(legend = "East") -> p2          ### add legend, assign as p2
+
+west%>% 
+        mjs_plot(pm25,                                  ### variable to plot on x-axis
+                 width="375px") %>%                     ### width of plot in pixels
+        mjs_histogram(bar_margin=2) %>%                 ### type of plot, space between bars
+        mjs_labs(x_label="PM2.5")  %>%                   ### x and y axis labels
+        mjs_axis_y(min_y = 0,
+                   max_y = 120) %>%                     ### set y-axis range
+        mjs_add_marker(12, "national standard") %>%     ### add horizontal line
+        mjs_add_legend(legend = "West") -> p1           ### add legend, assign as p1
+
+mjs_grid(p1, p2, ncol = 2, nrow = 1, widths = c(rep(1, 3)))
+```  
+
+<br>
+  
+By setting the range of the y-axis the same in both histograms, we can see indeed that there are more counties in the east (right histogram) that have average PM2.5 emissions that are greater than the national standards. However, while the maximum average PM2.5 emission for counties from the east reached only up to about $15~\mu g/m^3$, counties from the west exceeded $18~\mu g/m^3$.
+
+Lets take a look at separate scatterplots of the eastern and western counties. 
+
+<br>
+
+```{r}
+east %>%
+        mjs_plot(x = latitude,                         ### variable to plot on x-axis 
+                 y = pm25,                             ### variable to plot on y-axis
+                 width = 450,                          ### width in pixels of the plot
+                 height = 375) %>%                     ### height in pixels of the plot
+        mjs_point(y_rug = TRUE) %>%                    ### type of plot, include rug
+        mjs_labs(x = "Latitude", 
+                 y = "PM2.5 Emissions (??g/m3)") %>%    ### x and y axis labels
+        mjs_axis_y(min_y = 0, max_y = 20) %>%          ### set y-axis range
+        mjs_add_baseline(12, "National Standard") %>%  ### add horizontal line
+        mjs_add_legend("East") -> pl2                  ### add legend, assign as pl2
+
+west %>%
+        mjs_plot(x=latitude,                           ### variable to plot on x-axis
+                 y=pm25,                               ### variable to plot on y-axis
+                 width=450,                            ### width in pixels of the plot
+                 height=375) %>%                       ### height in pixels of the plot
+        mjs_point(y_rug=TRUE) %>%                      ### type of plot, include rug
+        mjs_labs(x="Latitude",
+                 y="PM2.5 Emissions (??g/m3)") %>%                         ### x and y axis labels
+        mjs_axis_y(min_y = 0,
+                   max_y = 20) %>%                     ### set y-axis range
+        mjs_add_baseline(12, "National Standard") %>%  ### add horizontal line
+        mjs_add_legend("West") -> pl1                  ### add legend, assign as pl1
+
+mjs_grid(pl1, pl2, ncol = 2, nrow = 1, widths = c(rep(1, 3))) ### layout of plots
+```
+  
+<br>  
+  
+Viewing the separate scatterplots we can see that there were more counties in the east (right scatterplot) than in the west.
+
+Utilizing the interactive functionality of metricgraphics we can determine that the highest ($18.4~\mu g/m^3$) and lowest ($3.8~\mu g/m^3$) average PM 2.5 emissions can be found in the east.
+
+With a syntax that is easy to learn and economy in codes to produce the desired plots, metricgraphics with its interactive functionality, have a place in the process of exploring data. 
+
+<br>
+
+#### Which States were over the national standard in 1999 and how much have they improved by 2012
+
+<br>
+
+Again, we retrieve another jewel from the accidentally downloaded datascience repository and explore tha data for 1999 and 2012.  We will use metricgraphics once again to answer the question posed above.
+
+<br>
+
+```{r}
+pm1999 <- read.table("DATA/RD_501_88101_1999-0.txt",     ### read the file
+                     comment.char = "#",                 ### set # as comment
+                     header = FALSE,                     ### don't include header or 1st line
+                     sep = "|",                          ### set seperastor as |
+                     na.strings = "")                    ### set NAs as blank spaces
+cnames <- readLines("DATA/RD_501_88101_1999-0.txt", 1)   ### read 1st line which contain variable names
+
+cnames <- strsplit(cnames, "|", fixed = TRUE)            ### seperate variable names from each other
+
+names(pm1999) <- make.names(cnames[[1]])                 #### assign variable names to data
+
+pm2012 <- read.table("DATA/RD_501_88101_2012-0.txt",     ### read the file
+                     comment.char = "#",                 ### set # as comment
+                     header = FALSE,                     ### don't include header or 1st line
+                     sep = "|",                          ### set seperastor as |
+                     na.strings = "")                    ### set NAs as blank spaces
+names(pm2012) <- make.names(cnames[[1]])                 ### read 1st line which contain variable names
+```
+
+<br>
+
+PM2.5 Emissions Data (RD_501_88101_1999-0.txt) and (RD_501_88101_2012-0.txt): This files contains a data frame of the average PM2.5 Emission levels for 1999 and 2012 across the USA respectively.
+
+Please take note that the units for the PM 2.5 Emissions levels in the current datasets we are exploring, are in micrograms per meter cube ($\mu g/m^3$).
+
+There are `r length(cnames[[1]])` variables in the data from 1999 and 2018 but we are only interested in the variables: 
+
+- `State.Code` - a number representing the states in the USA
+- `Sample.Value` - the observed PM2.5 level in $\mu g/m^3$
+
+<br>
+
+
+```{r}
+mn1999 <- with(pm1999, tapply(Sample.Value,              ### take variable Sample.Value and
+                              State.Code,                ### group by State.Code
+                              mean,                      ### take the mean per State
+                              na.rm = TRUE))             ### Don't include missing values
+
+mn2012 <- with(pm2012, tapply(Sample.Value,              ### take variable Sample.Value and
+                              State.Code,                ### group by State.Code
+                              mean,                      ### take the mean per State
+                              na.rm = TRUE))             ### Don't include missing values
+
+df1999 <- data.frame(state = names(mn1999),              ### create dataframe with variable state and
+                     mean = mn1999)                      ### mean 
+df2012 <- data.frame(state = names(mn2012),              ### create dataframe with variable state and
+                     mean = mn2012)                      ### mean
+
+df1999 <- df1999[-53, ]                                  ### remove the 53rd state not in 2012 data
+
+mrgdf <- merge(df1999, df2012, by = "state")             ### merge 2012 and 1999 data frame
+mrgdf$mean.x <- as.integer(round(mrgdf$mean.x))          ### set mean.x as integer
+mrgdf$mean.y <- as.integer(round(mrgdf$mean.y))          ### set mean.y as integer
+
+names(mrgdf) <- c("state", "yr1999", "yr2012")           ### set variable names
+
+```
+
+<br>
+
+We summarized the data to come up with a table of average PM2.5 levels for each state in 1999 and in 2012 but instead of showing the whole table we will use metricgraphics to compare the levels in 1999 and 2012 interactively. Please take note that the units for the PM 2.5 Emissions levels in this dataset are in micrograms per meter cube ($\mu g/m^3$).
+
+<br>
+
+```{r}
+mrgdf %>%
+        mjs_plot(x=state,                           ### assign the variable state to the x-axis
+                 y=yr1999,                          ### assign the variable yr1999 to the y-axis
+                 width=800,                         ### set the width of the plot to 800 pixels
+                 height=250,                        ### set the height of the plot to 250 pixels
+                 linked=TRUE) %>%                   ### link the two plots
+        mjs_point() %>%                             ### create a line plot
+        mjs_axis_x(xax_count = 52,                  ### create 52 ticks on the x-axis
+                   min_x = 0,                       ### minimum tick value is 0
+                   max_x = 52) %>%                  ### maximum tick value is 52
+        mjs_labs(x="state",                         ### label x-axis as state
+                 y="PM2.5 Emissions (??g/m3)") %>%   ### label y-axis as PM2.5
+        mjs_add_baseline(12,                        ### add horizontal line  
+                         "National Standard") %>%   ### label line as national standard at level 12
+        mjs_add_legend(legend="X") -> mjs_brief_1   ### assign name to plot
+
+mrgdf %>%
+        mjs_plot(x=state,                           ### assign the variable state to the x-axis
+                 y=yr2012,                          ### assign the variable yr1999 to the y-axis
+                 width=800,                         ### set the width of the plot to 800 pixels
+                 height=250,                        ### set the height of the plot to 250 pixels
+                 linked=TRUE) %>%                   ### link the two plots
+        mjs_point() %>%                             ### create a line plot
+        mjs_axis_x(xax_count = 52,                  ### create 52 ticks on the x-axis
+                   min_x = 0,                       ### minimum tick value is 0
+                   max_x = 52) %>%                  ### maximum tick value is 52
+        mjs_labs(x="state",                         ### label x-axis as state
+                 y="PM2.5 Emissions (??g/m3)") %>%   ### label y-axis as PM2.5
+        mjs_add_baseline(12,                        ### add horizontal line 
+                         "National Standard") %>%   ### label line as national standard at level 12
+        mjs_add_legend(legend="X") -> mjs_brief_2   ### assign name to plot
+
+div(style="margin:auto;text-align:center",            ### align text to center
+    strong("PM 2.5 levels, by State - 1999"), br(), mjs_brief_1,   ### set first text to bold
+    strong("PM 2.5 levels, by State - 2012"), br(), mjs_brief_2)  ### set second text to bold
+
+```
+
+```{r usa, fig.align="center"}
+library(knitr)
+include_graphics("us-climate-regions_0.gif")
+```
+
+Image of the map of the USA was downloaded from the [U.S. Environmental Protection Agency](https://www.epa.gov/)
+
+I am not sure which State of the USA the variable `state` in our data corresponds to at the time I published the data.  I requested the information by email from the [U.S. Environmental Protection Agency](https://www.epa.gov/) and I'm currently waiting for thier reply.
+
+<br>
+
+Thanks to Roger Peng, Bob Rudis, and Coursera for inspiring this project. I had a lot of fun and learning while doing it.
+
+Many thank also to the [U.S. Environmental Protection Agency](https://www.epa.gov/) for providing the data to the public.
+
+<br>
+
+#### References
+
+- [Introduction to metricsgraphics](http://cran.r-project.org/web/packages/metricsgraphics/vignettes/introductiontometricsgraphics.html)
+
+Bob Rudis
+
+- Exploratory Graphs
+- Decreases in Fine Particle Air Pollution Between 1999 and 2012
+
+Roger D. Peng, Associate Professor of Biostatistics
+Johns Hopkins Bloomberg School of Public Health
+
+- Exploratory Data Analysis Course from Coursera
+
+ 
