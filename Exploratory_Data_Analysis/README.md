@@ -2,7 +2,7 @@
 
 ### Course Description
 
-This folder contains my course project 2 submitted through GitHub for the course Exploratory Data Analysis in Coursera. The course covers the essential exploratory techniques for summarizing data. Exploratory techniques are important for eliminating or sharpening potential hypotheses about the world that can be addressed by the data. 
+This folder contains my course projects submitted through GitHub for the course Exploratory Data Analysis in Coursera. The course covers the essential exploratory techniques for summarizing data. Exploratory techniques are important for eliminating or sharpening potential hypotheses about the world that can be addressed by the data. Another folder, MetricGraphics, contains a data visualization of the datasets provided in this course using the package metricGraphics by Bob Rudis. 
 
 [<img src="https://coursera-course-photos.s3.amazonaws.com/fa/fc1b7069b511e39de639278c4f9dba/ExploratoryDataAnalysis.jpg">](https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/)
 
