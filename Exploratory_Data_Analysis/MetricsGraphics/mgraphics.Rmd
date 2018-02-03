@@ -475,9 +475,9 @@ mrgdf %>%
                  height=250,                        ### set the height of the plot to 250 pixels
                  linked=TRUE) %>%                   ### link the two plots
         mjs_point() %>%                             ### create a line plot
-        mjs_axis_x(xax_count = 52,                  ### create 52 ticks on the x-axis
+        mjs_axis_x(xax_count = 56,                  ### create 52 ticks on the x-axis
                    min_x = 0,                       ### minimum tick value is 0
-                   max_x = 52) %>%                  ### maximum tick value is 52
+                   max_x = 56) %>%                  ### maximum tick value is 52
         mjs_labs(x="state",                         ### label x-axis as state
                  y="PM2.5 Emissions (??g/m3)") %>%   ### label y-axis as PM2.5
         mjs_add_baseline(12,                        ### add horizontal line  
@@ -491,9 +491,9 @@ mrgdf %>%
                  height=250,                        ### set the height of the plot to 250 pixels
                  linked=TRUE) %>%                   ### link the two plots
         mjs_point() %>%                             ### create a line plot
-        mjs_axis_x(xax_count = 52,                  ### create 52 ticks on the x-axis
+        mjs_axis_x(xax_count = 56,                  ### create 52 ticks on the x-axis
                    min_x = 0,                       ### minimum tick value is 0
-                   max_x = 52) %>%                  ### maximum tick value is 52
+                   max_x = 56) %>%                  ### maximum tick value is 52
         mjs_labs(x="state",                         ### label x-axis as state
                  y="PM2.5 Emissions (??g/m3)") %>%   ### label y-axis as PM2.5
         mjs_add_baseline(12,                        ### add horizontal line 
@@ -506,14 +506,31 @@ div(style="margin:auto;text-align:center",            ### align text to center
 
 ```
 
+
+| No. |State       | No. |State        | No. |State        | No. |State        |
+|:----|:-----------|:----|:------------|:----|:------------|:----|:------------|
+|`1`  |Alabama     |`17` |Illinois     |`30` |Montana      |`44` |Rhode island |
+|`2`  |Alaska      |`18` |Indiana      |`31` |Nebraska     |`45` |S Carolina   |
+|`4`  |Arizona     |`19` |Iowa         |`32` |Nevada       |`46` |South Dakota |
+|`5`  |Arkansas    |`20` |Kansas       |`33` |New Hampshire|`47` |Tennessee    |
+|`6`  |California  |`21` |Kentucky     |`34` |New jersey   |`48` |Texas        |
+|`8`  |Colorado    |`22` |Louisiana    |`35` |New Mexico   |`49` |Utah         |
+|`9`  |Connecticut |`23` |Maine        |`36` |New York     |`50` |Vermont      |
+|`10` |Delaware    |`24` |Maryland     |`37` |N Carolina   |`51` |Virginia     |
+|`11` |D Columbia  |`25` |Massachusetts|`38` |North Dakota |`53` |Washington   |
+|`12` |Florida     |`26` |Michigan     |`39` |Ohio         |`54` |West virginia|
+|`13` |Georgia     |`27` |Minnesota    |`40` |Oklahoma     |`55` |Wisconsin    |
+|`15` |Hawaii      |`28` |Mississippi  |`41` |Oregon       |`56` |Wyoming      |
+|`16` |Idaho       |`29` |Missouri     |`42` |Pennsylvania |     |             |
+
+*NOTE*: There are no entries for the following numerical codes: 3, 7, 14, 43, and 52.
+
 ```{r usa, fig.align="center"}
 library(knitr)
 include_graphics("us-climate-regions_0.gif")
 ```
 
 Image of the map of the USA was downloaded from the [U.S. Environmental Protection Agency](https://www.epa.gov/)
-
-I am not sure which State of the USA the variable `state` in our data corresponds to at the time I published the data.  I requested the information by email from the [U.S. Environmental Protection Agency](https://www.epa.gov/) and I'm currently waiting for thier reply.
 
 <br>
 
