@@ -525,7 +525,7 @@ mrgdf %>%
                  width=800,                         ### set the width of the plot to 800 pixels
                  height=250,                        ### set the height of the plot to 250 pixels
                  linked=TRUE) %>%                   ### link the two plots
-        mjs_point() %>%                             ### create a line plot
+        mjs_point(point_size = 5) %>%                             ### create a line plot
         mjs_axis_x(xax_count = 56,                  ### create 56 ticks on the x-axis
                    min_x = 0,                       ### minimum tick value is 0
                    max_x = 56) %>%                  ### maximum tick value is 56
@@ -543,6 +543,7 @@ mrgdf %>%
                  linked=TRUE) %>%                   ### link the two plots
         mjs_point(color_accessor=diff2,             ### create a line plot, assign color to variable diff2
                   size_accessor=diff,               ### assign size to variable diff
+                  size_range = c(1, 3),
                   color_type="category",            ### assign a discrete variable to color
                   color_range = c("blue",           ### assign color blue for a decrease in pm2.5 levels
                                   "red",            ### assign color red for an increase in pm2.5 levels
@@ -561,8 +562,69 @@ div(style="margin:auto;text-align:center",          ### align text to center
     strong("PM 2.5 levels, by State - 2012"), br(), mjs_brief_2)   ### set second text to bold
 ```
 
+<br>
+
 The size of the dot reflects the magnitude of the change in PM 2.5 levels while the color reflects whether there was a change in PM 2.5 levels. Red for increase, grey for no change, and blue for decrease 
 
+<br>
+
+```{r}
+mrgdf <- mrgdf %>%
+        mutate(diff = yr2012 - yr1999) %>%
+        mutate(diff2 = ifelse(diff < 0, "decreased",
+                              ifelse(diff > 0, "increased",
+                                     "no_change")))
+
+mrgdf %>%
+        mjs_plot(x=state,                           ### assign the variable state to the x-axis
+                 y=yr1999,                          ### assign the variable yr1999 to the y-axis
+                 width=800,                         ### set the width of the plot to 800 pixels
+                 height=250,                        ### set the height of the plot to 250 pixels
+                 linked=TRUE) %>%                   ### link the two plots
+        mjs_point(point_size = 5) %>%                             ### create a line plot
+        mjs_axis_x(xax_count = 56,                  ### create 56 ticks on the x-axis
+                   min_x = 0,                       ### minimum tick value is 0
+                   max_x = 56) %>%                  ### maximum tick value is 56
+        mjs_axis_y(min_y = 2,
+                   max_y = 20,
+                   yax_count = 10) %>%
+        mjs_labs(x="state",                         ### label x-axis as state
+                 y="PM2.5 Emissions (??g/m3)") %>%  ### label y-axis as PM2.5
+        mjs_add_baseline(12,                        ### add horizontal line  
+                         "National Standard") %>%   ### label line as national standard at level 12
+        mjs_add_legend(legend="X") -> mjs_brief_1   ### assign name to plot
+
+mrgdf %>%
+        mjs_plot(x=state,                           ### assign the variable state to the x-axis
+                 y=yr2012,                          ### assign the variable yr1999 to the y-axis
+                 width=800,                         ### set the width of the plot to 800 pixels
+                 height=250,                        ### set the height of the plot to 250 pixels
+                 linked=TRUE) %>%                   ### link the two plots
+        mjs_point(color_accessor=diff2,             ### create a line plot, assign color to variable diff2
+                  size_accessor=diff,               ### assign size to variable diff
+                  size_range = c(1, 3),
+                  color_type="category",            ### assign a discrete variable to color
+                  color_range = c("blue",           ### assign color blue for a decrease in pm2.5 levels
+                                  "red",            ### assign color red for an increase in pm2.5 levels
+                                  "grey")) %>%      ### assign color grey when there's no change in pm2.5 levels
+        mjs_axis_x(xax_count = 56,                  ### create 56 ticks on the x-axis
+                   min_x = 0,                       ### minimum tick value is 0
+                   max_x = 56) %>%                  ### maximum tick value is 56
+        mjs_axis_y(min_y = 2,
+                   max_y = 20,
+                   yax_count = 10) %>%
+        mjs_labs(x="state",                         ### label x-axis as state
+                 y="PM2.5 Emissions (??g/m3)") %>%  ### label y-axis as PM2.5
+        mjs_add_baseline(12,                        ### add horizontal line at 12
+                        "National Standard") %>%    ### label line as national standard 
+        mjs_add_legend(legend="X") -> mjs_brief_2   ### assign variable name to plot
+
+div(style="margin:auto;text-align:center",          ### align text to center
+    strong("PM 2.5 levels, by State - 1999"), br(), mjs_brief_1,   ### set first text to bold
+    strong("PM 2.5 levels, by State - 2012"), br(), mjs_brief_2)   ### set second text to bold
+```
+
+The size of the dot reflects the magnitude of the change in PM 2.5 levels while the color reflects whether there was a change in PM 2.5 levels. Red for increase, grey for no change, and blue for decrease. The line provides a reference for the national standard equivalent to 12. 
 
 | No. |State       | No. |State        | No. |State        | No. |State        |
 |:----|:-----------|:----|:------------|:----|:------------|:----|:------------|
